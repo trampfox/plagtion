@@ -1,3 +1,4 @@
+#!/usr/bin/env ruby
 ############################################################################
 #    Copyright (C) 2009 by Davide Monfrecola                               #
 #    davide.monfrecola@gmail.com                                           #
@@ -17,6 +18,7 @@
 #    Free Software Foundation, Inc.,                                       #
 #    59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             #
 ############################################################################
+
 require 'rubygems'
 require 'net/http'
 require 'hpricot'
@@ -41,3 +43,4 @@ require 'open-uri'
 
 #http://www.galileo.it/crypto/telelavoro/tgpi-11_6.htm
 #.each_element( './/text()' ){}.join() per prendere il testo da ogni elemento
+parsing

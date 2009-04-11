@@ -1,3 +1,4 @@
+#!/usr/bin/env ruby
 ############################################################################
 #    Copyright (C) 2009 by Davide Monfrecola                               #
 #    davide.monfrecola@gmail.com                                           #
@@ -67,9 +68,7 @@ class InputText
       i = 0
       j = BLOCK_SIZE - 1
      @buffer = IO.read(file).downcase!
-     @content = @buffer.split(" ") # each element of @content is a word
-     #@content.each() { |x| x.tr(',.!<>', "") }
-     @content.each { |a| a.slice!(/['.,<>()-?:\/"]/)} #chiedere su ruby-it
+     @content = @buffer.split(/\W+/) # each element of @content is a word
      #puts @content
      puts "=== blockHash ==="
      while i < @content.length-1
@@ -110,7 +109,7 @@ class InputText
 	for i in 0..NUM_OF_PAGE
 		q.each_on_page(i) do |result|
 			resObj = ResultPage.new(result.url, result.cached_url, result.title)
-			resultList << resObj
+			#resultList << resObj
 =begin
 			puts "-- URL --"
 			puts result.url
