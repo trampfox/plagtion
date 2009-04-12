@@ -19,24 +19,19 @@
 #    59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             #
 ############################################################################
 
-# PlagTion Version 0.0.1
+# This class of object contains all the information about a web page
+# There's an instance of this class for every web page result
+class ResultPage
 
-require 'rubygems'
-require 'gscraper'
-require 'result_page'
-require 'input_text'
-require 'search'
+  @content = ""
+  @url = ""
+  @cachedURL = ""
+  @title = ""
+  
+  def initialize(url, cachedURL, title)
+    @url = url
+    @chachedURL = cachedURL
+    @title = title
+  end
 
-BLOCK_SIZE = 5
-NUM_OF_PAGE = 1
-P = 1211
-M = 209503
-
-def main()
-	i = 0
-	j = BLOCK_SIZE-1
-	x = InputText.new()
-	x.readtext("test.txt")
-end # main
-
-main()
+end # class
