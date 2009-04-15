@@ -28,10 +28,21 @@ class ResultPage
   @cachedURL = ""
   @title = ""
   
-  def initialize(url, cachedURL, title)
+=begin
+	url: webpage url
+	cachedURL: cached webpage url
+	title: webpage title
+	index: first block word index
+=end
+  def initialize(url, cachedURL, title, index)
     @url = url
     @chachedURL = cachedURL
     @title = title
   end
 
+	# test method
+	def to_s
+		return "Title : #{@title}"
+	end 
+	
 end # class
