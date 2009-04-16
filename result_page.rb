@@ -55,14 +55,21 @@ class ResultPage
 	def download_page
 		if (@cachedURL.kind_of?(URI::HTTP))
 			puts @cachedURL.inspect
-			#htmlfile2text(@cachedURL)
+			@cachedURL.query += "&gl=it&strip=1"
+			#-> old code
 			doc = Hpricot(open(@cachedURL))
 			text = doc.at('body')
-			#file = File.new("./tmp/#{@@count} - #{@title[0,5]}", "w")
+			file = File.new("./tmp/#{@@count} - #{@title[0,5]}", "w")
 			if (text != nil)
 				@content = text.to_plain_text.split(/\W+/)
 				#puts @content
 			end
+=begin -> new code
+		textdoc = htmlfile2text(@cachedURL)
+		file = File.new("./tmp/#{@@count} - #{@title[0,5]}", "w")
+		file.puts textdoc
+		file.close
+=end
 		if (@content != nil)		
 				puts "=== blockHash ResultPage==="
 				i = 0
@@ -74,7 +81,7 @@ class ResultPage
 					j = j+BLOCK_SIZE
 				end # while
 				puts "=== blockHash ResultPage end ==="
-				puts @indexTable
+				#puts @indexTable
 		end # @content if
 =begin
 			note:

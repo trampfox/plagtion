@@ -10,9 +10,13 @@ require 'open-uri'
 @only_text = "&gl=it&strip=1"
 
 def htmlfile2text(fname)
-  doc = Hpricot(open(fname))
-  text = html2text(doc.at('body'))
-  text.strip.gsub(/\n{2,}/, "\n\n")
+   doc = Hpricot(open(fname))
+	 # --- save the html of the current page
+	 f = File.new("last.html","w")
+	 f.puts doc.to_html
+	 f.close
+	 text = html2text(doc)
+	 text.strip.gsub(/\n{2,}/, "\n\n")
 end
 
 def html2text(a)
