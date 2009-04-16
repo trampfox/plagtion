@@ -41,6 +41,9 @@ class ResultPage
     @cachedURL = cachedURL
     @title = title
 		@@count = @@count+1
+		# integers indexes list (M elements). Each index points to the begin of the word block
+		# One for every ResultPage
+		@indexTable = Array.new(M) {Array.new}
 		self.download_page
   end
 
@@ -54,11 +57,46 @@ class ResultPage
 			puts @cachedURL.inspect
 			#htmlfile2text(@cachedURL)
 			doc = Hpricot(open(@cachedURL))
-			file = File.new("./tmp/#{@@count} - #{@title[0,5]}", "w")
-			@content = doc.to_plain_text
-			file.write(@content.split(/\W+/))
-			file.close
-		end #if
+			text = doc.at('body')
+			#file = File.new("./tmp/#{@@count} - #{@title[0,5]}", "w")
+			if (text != nil)
+				@content = text.to_plain_text.split(/\W+/)
+				#puts @content
+			end
+		if (@content != nil)		
+				puts "=== blockHash ResultPage==="
+				i = 0
+				j = BLOCK_SIZE-1
+				while i < @content.length-1
+					# i is the index of the first word 
+					blockhash(@content[i..j], i)
+					i = j+1
+					j = j+BLOCK_SIZE
+				end # while
+				puts "=== blockHash ResultPage end ==="
+				puts @indexTable
+		end # @content if
+=begin
+			note:
+			@content OK -> contiene tutte le parole prese dal body della pagina
+			#@content.each {|x| file.write(x+" ")}
+=end
+			#file.close
+		end # @cachedURL if
 	end # method 
+	
+	#private method of the class
+  private
+  def blockhash(a, pos)
+     hasharray = Array.new(0)
+     sum = 0
+     i = 0	
+     for x in a
+        hasharray << x.hash * P**i
+        i = i+1
+     end
+     hasharray.each {|elem| sum = sum + elem}
+     @indexTable[sum % M] << pos # posizione della prima parola con un dato hash
+  end
 	
 end # class
