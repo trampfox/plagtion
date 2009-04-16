@@ -50,12 +50,15 @@ class ResultPage
 	end 
 	
 	def download_page
-		#htmlfile2text(@cachedURL)
-		puts @cachedURL.inspect
-		doc = Hpricot(open(@cachedURL))
-		#file = File.new("./tmp/#{@@count} - #{@title[0,5]}", "w")
-		@content = doc.to_plain_text
-		#file.close
+		if (@cachedURL.kind_of?(URI::HTTP))
+			puts @cachedURL.inspect
+			#htmlfile2text(@cachedURL)
+			doc = Hpricot(open(@cachedURL))
+			file = File.new("./tmp/#{@@count} - #{@title[0,5]}", "w")
+			@content = doc.to_plain_text
+			file.write(@content.split(/\W+/))
+			file.close
+		end #if
 	end # method 
 	
 end # class
