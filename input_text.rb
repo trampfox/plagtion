@@ -52,8 +52,6 @@ class InputText
 			puts "--- search on block #{i} - #{i+BLOCK_SIZE} ---"
 			search(@content[i..i+BLOCK_SIZE-1].join(" "), i)
 			i = i + BLOCK_SIZE
-			puts "--- search on block #{i} - #{i+BLOCK_SIZE} ---"
-			search(@content[i..i+BLOCK_SIZE-1].join(" "), i)
 	  #end # while
     puts "=== end search private method ==="
   end #readtext

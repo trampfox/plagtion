@@ -26,6 +26,10 @@ require 'gscraper'
 require 'result_page'
 require 'input_text'
 require 'search'
+require 'net/http'
+require 'hpricot'
+require 'open-uri'
+require 'miohtml'
 
 BLOCK_SIZE = 5
 NUM_OF_PAGE = 1

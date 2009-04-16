@@ -7,6 +7,7 @@ require 'iconv'
 require 'kconv'
 require 'open-uri'
 
+@only_text = "&gl=it&strip=1"
 
 def htmlfile2text(fname)
   doc = Hpricot(open(fname))

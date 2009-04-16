@@ -27,6 +27,8 @@ class ResultPage
   @url = ""
   @cachedURL = ""
   @title = ""
+	@only_text = "&gl=it&strip=1"
+	@@count = 0
   
 =begin
 	url: webpage url
@@ -36,13 +38,24 @@ class ResultPage
 =end
   def initialize(url, cachedURL, title, index)
     @url = url
-    @chachedURL = cachedURL
+    @cachedURL = cachedURL
     @title = title
+		@@count = @@count+1
+		self.download_page
   end
 
 	# test method
 	def to_s
 		return "Title : #{@title}"
 	end 
+	
+	def download_page
+		#htmlfile2text(@cachedURL)
+		puts @cachedURL.inspect
+		doc = Hpricot(open(@cachedURL))
+		#file = File.new("./tmp/#{@@count} - #{@title[0,5]}", "w")
+		@content = doc.to_plain_text
+		#file.close
+	end # method 
 	
 end # class
