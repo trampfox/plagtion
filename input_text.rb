@@ -21,7 +21,7 @@
 
 # This class contains the information about the input text/file
 class InputText
-
+	
   def initialize()
 		@content = Array.new(0)
     @buffer = ""
@@ -32,28 +32,38 @@ class InputText
 
   # reads the input file
   def readtext(file)
+		# array that contains all threads
+		threads = []
 		i = 0
     j = BLOCK_SIZE - 1
     @buffer = IO.read(file).downcase!
     @content = @buffer.split(/\W+/) # each element of @content is a word
     #puts @content
-    puts "=== blockHash ==="
+    #puts "=== blockHash ==="
     while i < @content.length-1
 			# i is the index of the first word 
       blockhash(@content[i..j], i)
       i = j+1
       j = j+BLOCK_SIZE
     end # while
-    puts "=== blockHash end ==="
+    #puts "=== blockHash end ==="
 	  # creare vari oggetti ResultPage, uno per ogni blocco
     puts "=== call search private method ==="
 	  i = 0
+		while i < 30
 	  #while i < @content.length-1
 			puts "--- search on block #{i} - #{i+BLOCK_SIZE} ---"
-			search(@content[i..i+BLOCK_SIZE-1].join(" "), i)
+			# one thread per block
+			threads << Thread.new() do
+				print "run block #{i/BLOCK_SIZE} thread\n"
+				search(@content[i..i+BLOCK_SIZE-1].join(" "), i)
+			end # thread
+			print "exit block #{i} thread\n"
 			i = i + BLOCK_SIZE
-	  #end # while
+	  end # while
     puts "=== end search private method ==="
+		print "\n=== Waiting for results ===\n"
+		threads.each {|thr|  thr.join }
   end #readtext
 
   #private method of the class
@@ -82,13 +92,14 @@ class InputText
 		# q instance of Query class
 		q = GScraper::Search.query(:query => query)
 		# getting search result
-		puts "=== Text block #{array_index} ==="
-		puts "=== Top result --> #{q.top_result}"
+		puts "=== Text block #{array_index} (array_index))==="
+		#puts "=== Top result --> #{q.top_result}"
 		puts ""
-		#Per ogni pagina ora devo creare un nuovo oggetto ResultPage e riempire le sue variabili
+		# one obj ResultPage for every page 
+		# ResultPage contains info from internet
 		for i in 1..NUM_OF_PAGE
 			q.each_on_page(i) do |result|
-				#puts "=== indice array #{index/BLOCK_SIZE} ===" TEST
+				#puts "=== Array Index #{index/BLOCK_SIZE} ===" TEST
 				@resultList[array_index] << ResultPage.new(result.url, result.cached_url, result.title, index)
 			end # do
 		end # for
@@ -97,3 +108,12 @@ class InputText
 	end
 
 end # class InputText
+
+
+=begin
+
+Metodi da fare: 
+- gestione thread
+- Gestione eccezioni -> (Es: OpenURI::HTTPError) quando lancio ricerca
+
+=end

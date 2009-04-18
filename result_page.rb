@@ -40,10 +40,12 @@ class ResultPage
     @url = url
     @cachedURL = cachedURL
     @title = title
+		# @@count: number of ResultPage object
 		@@count = @@count+1
 		# integers indexes list (M elements). Each index points to the begin of the word block
 		# One for every ResultPage
 		@indexTable = Array.new(M) {Array.new}
+		# download the result
 		self.download_page
   end
 
@@ -54,7 +56,8 @@ class ResultPage
 	
 	def download_page
 		if (@cachedURL.kind_of?(URI::HTTP))
-			puts @cachedURL.inspect
+			# puts @cachedURL.inspect
+			# only_text page version
 			@cachedURL.query += "&gl=it&strip=1"
 			#-> old code
 			doc = Hpricot(open(@cachedURL))
@@ -64,6 +67,7 @@ class ResultPage
 				@content = text.to_plain_text.split(/\W+/)
 				#puts @content
 			end
+			# -> end old code
 =begin -> new code
 		textdoc = htmlfile2text(@cachedURL)
 		file = File.new("./tmp/#{@@count} - #{@title[0,5]}", "w")
@@ -71,7 +75,7 @@ class ResultPage
 		file.close
 =end
 		if (@content != nil)		
-				puts "=== blockHash ResultPage==="
+				#puts "=== blockHash ResultPage==="
 				i = 0
 				j = BLOCK_SIZE-1
 				while i < @content.length-1
@@ -80,7 +84,7 @@ class ResultPage
 					i = j+1
 					j = j+BLOCK_SIZE
 				end # while
-				puts "=== blockHash ResultPage end ==="
+				#puts "=== blockHash ResultPage end ==="
 				#puts @indexTable
 		end # @content if
 =begin
@@ -107,3 +111,14 @@ class ResultPage
   end
 	
 end # class
+
+
+=begin
+
+Metodi da fare:
+- Ricerca similarità tra testo in input e obj ResultPage
+
+Domande:
+- Ricerca (algo Rabin Karp) : elevazione a potenza per i vari blocchi (come procede)
+
+=end
