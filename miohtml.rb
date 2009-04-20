@@ -20,7 +20,7 @@ def htmlfile2text(fname)
 end
 
 def html2text(a)
-  if(a.respond_to? :children)
+  if((a.respond_to? :children) && (a.children != nil))
     a.children.map { |x| html2text(x) }.join
   elsif a.text?
     s = a.to_html  # needed to preserve entities
@@ -41,6 +41,7 @@ def htmlstring2text(s)
   # this last conversion can produce the infamuos \222=0x92 character
   # which is not an iso-8859-* character. Get rid of it! 
   s.gsub!("\222","'")     # single quote cp1250
+	#puts "=== Page === #{s}"
   return s
 end
 
@@ -48,3 +49,8 @@ end
 if ARGV[0]
   puts htmlfile2text(ARGV[0])
 end
+
+=begin
+Problema: eliminare spazi bianchi
+		* strip non va bene perchè toglie alcuni spazi tra le parole
+=end

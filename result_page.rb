@@ -36,7 +36,7 @@ class ResultPage
 	title: webpage title
 	index: first block word index
 =end
-  def initialize(url, cachedURL, title, index)
+  def initialize(url, cachedURL, title, page)
     @url = url
     @cachedURL = cachedURL
     @title = title
@@ -59,6 +59,7 @@ class ResultPage
 			# puts @cachedURL.inspect
 			# only_text page version
 			@cachedURL.query += "&gl=it&strip=1"
+=begin
 			#-> old code
 			doc = Hpricot(open(@cachedURL))
 			text = doc.at('body')
@@ -68,12 +69,19 @@ class ResultPage
 				#puts @content
 			end
 			# -> end old code
-=begin -> new code
+=end
+		#-> new code
 		textdoc = htmlfile2text(@cachedURL)
+		textdoc
+		# -> end new code
 		file = File.new("./tmp/#{@@count} - #{@title[0,5]}", "w")
 		file.puts textdoc
-		file.close
+=begin elimina accentate in questo modo 
+		# remove white spaces and other special character
+		file.puts textdoc.split(/\W+/) 
 =end
+		file.close
+
 		if (@content != nil)		
 				#puts "=== blockHash ResultPage==="
 				i = 0

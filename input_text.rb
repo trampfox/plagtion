@@ -50,17 +50,18 @@ class InputText
 	  # creare vari oggetti ResultPage, uno per ogni blocco
     puts "=== call search private method ==="
 	  i = 0
-		while i < 30
+		#while i < 30
 	  #while i < @content.length-1
 			puts "--- search on block #{i} - #{i+BLOCK_SIZE} ---"
+			i = 150
 			# one thread per block
 			threads << Thread.new() do
 				print "run block #{i/BLOCK_SIZE} thread\n"
 				search(@content[i..i+BLOCK_SIZE-1].join(" "), i)
 			end # thread
-			print "exit block #{i} thread\n"
+			print "exit block #{i/BLOCK_SIZE} thread\n"
 			i = i + BLOCK_SIZE
-	  end # while
+	  #end # while
     puts "=== end search private method ==="
 		print "\n=== Waiting for results ===\n"
 		threads.each {|thr|  thr.join }
@@ -100,7 +101,7 @@ class InputText
 		for i in 1..NUM_OF_PAGE
 			q.each_on_page(i) do |result|
 				#puts "=== Array Index #{index/BLOCK_SIZE} ===" TEST
-				@resultList[array_index] << ResultPage.new(result.url, result.cached_url, result.title, index)
+				@resultList[array_index] << ResultPage.new(result.url, result.cached_url, result.title, array_index)
 			end # do
 		end # for
 		puts "=== ResultList on page #{array_index} ==="
