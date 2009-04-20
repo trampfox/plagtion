@@ -21,6 +21,7 @@ end
 
 def html2text(a)
   if((a.respond_to? :children) && (a.children != nil))
+	#if(a.respond_to? :children)
     a.children.map { |x| html2text(x) }.join
   elsif a.text?
     s = a.to_html  # needed to preserve entities
@@ -42,7 +43,9 @@ def htmlstring2text(s)
   # which is not an iso-8859-* character. Get rid of it! 
   s.gsub!("\222","'")     # single quote cp1250
 	#puts "=== Page === #{s}"
-  return s
+	# return string without some whitespaces
+  #return s.squeeze(" ")
+	return s.rstrip
 end
 
 

@@ -72,7 +72,6 @@ class ResultPage
 =end
 		#-> new code
 		textdoc = htmlfile2text(@cachedURL)
-		textdoc
 		# -> end new code
 		file = File.new("./tmp/#{@@count} - #{@title[0,5]}", "w")
 		file.puts textdoc

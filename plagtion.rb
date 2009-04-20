@@ -40,7 +40,7 @@ def main()
 	i = 0
 	j = BLOCK_SIZE-1
 	x = InputText.new()
-	x.readtext("test_ita.txt")
+	x.readtext("test.txt")
 end # main
 
 main()
