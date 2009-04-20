@@ -59,28 +59,27 @@ class ResultPage
 			# puts @cachedURL.inspect
 			# only_text page version
 			@cachedURL.query += "&gl=it&strip=1"
-=begin
+
 			#-> old code
 			doc = Hpricot(open(@cachedURL))
-			text = doc.at('body')
+			textdoc = doc.at('body')
 			file = File.new("./tmp/#{@@count} - #{@title[0,5]}", "w")
-			if (text != nil)
-				@content = text.to_plain_text.split(/\W+/)
+			if (textdoc != nil)
+				@content = textdoc.to_plain_text.split(/\W+/)
 				#puts @content
 			end
 			# -> end old code
-=end
+=begin
 		#-> new code
 		textdoc = htmlfile2text(@cachedURL)
 		# -> end new code
+=end
 		file = File.new("./tmp/#{@@count} - #{@title[0,5]}", "w")
 		file.puts textdoc
-=begin elimina accentate in questo modo 
-		# remove white spaces and other special character
-		file.puts textdoc.split(/\W+/) 
-=end
 		file.close
-
+		# 	@content = textdoc.split(/\W+/)
+		puts "--- @content ---"
+		puts @content
 		if (@content != nil)		
 				#puts "=== blockHash ResultPage==="
 				i = 0
@@ -91,17 +90,10 @@ class ResultPage
 					i = j+1
 					j = j+BLOCK_SIZE
 				end # while
-				#puts "=== blockHash ResultPage end ==="
-				#puts @indexTable
+				#puts "=== blockHash ResultPage end ==="	
 		end # @content if
-=begin
-			note:
-			@content OK -> contiene tutte le parole prese dal body della pagina
-			#@content.each {|x| file.write(x+" ")}
-=end
-			#file.close
-		end # @cachedURL if
-	end # method 
+	end # @cachedURL if
+end # method 
 	
 	#private method of the class
   private
@@ -116,6 +108,13 @@ class ResultPage
      hasharray.each {|elem| sum = sum + elem}
      @indexTable[sum % M] << pos # posizione della prima parola con un dato hash
   end
+	
+=begin
+	find block that match an input text block
+=end
+	def similarity()
+	
+	end
 	
 end # class
 

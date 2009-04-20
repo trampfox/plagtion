@@ -36,9 +36,8 @@ class InputText
 		threads = []
 		i = 0
     j = BLOCK_SIZE - 1
-    @buffer = IO.read(file).downcase!
-    @content = @buffer.split(/\W+/) # each element of @content is a word
-    #puts @content
+    @content = IO.read(file).downcase!.split(/\W+/) # each element of @content is a word
+    puts @content
     #puts "=== blockHash ==="
     while i < @content.length-1
 			# i is the index of the first word 
@@ -50,7 +49,6 @@ class InputText
 	  # creare vari oggetti ResultPage, uno per ogni blocco
     puts "=== call search private method ==="
 	  i = 0
-		#while i < 30
 	  #while i < @content.length-1
 			puts "--- search on block #{i} - #{i+BLOCK_SIZE} ---"
 			i = 150
