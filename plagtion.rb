@@ -40,7 +40,15 @@ def main()
 	i = 0
 	j = BLOCK_SIZE-1
 	x = InputText.new()
-	x.readtext("test_ita.txt")
+	x.readtext("test.txt")
 end # main
 
 main()
+
+=begin
+
+call external program
+a = `ls`
+a.each {|x| puts x}
+
+=end

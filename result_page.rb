@@ -59,27 +59,29 @@ class ResultPage
 			# puts @cachedURL.inspect
 			# only_text page version
 			@cachedURL.query += "&gl=it&strip=1"
-
+			
+=begin
 			#-> old code
 			doc = Hpricot(open(@cachedURL))
 			textdoc = doc.at('body')
 			file = File.new("./tmp/#{@@count} - #{@title[0,5]}", "w")
 			if (textdoc != nil)
-				@content = textdoc.to_plain_text.split(/\W+/)
+				@content = textdoc.to_plain_text.split(/\W+/u)
 				#puts @content
 			end
 			# -> end old code
-=begin
+=end
+
 		#-> new code
 		textdoc = htmlfile2text(@cachedURL)
 		# -> end new code
-=end
+
 		file = File.new("./tmp/#{@@count} - #{@title[0,5]}", "w")
 		file.puts textdoc
 		file.close
 		# 	@content = textdoc.split(/\W+/)
 		puts "--- @content ---"
-		puts @content
+		#puts @content
 		if (@content != nil)		
 				#puts "=== blockHash ResultPage==="
 				i = 0
@@ -111,7 +113,7 @@ end # method
 	
 =begin
 	find block that match an input text block
-=end
+=end	
 	def similarity()
 	
 	end

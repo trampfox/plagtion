@@ -36,7 +36,7 @@ class InputText
 		threads = []
 		i = 0
     j = BLOCK_SIZE - 1
-    @content = IO.read(file).downcase!.split(/\W+/) # each element of @content is a word
+    @content = IO.read(file).downcase!.split(/\W+/u) # each element of @content is a word
     puts @content
     #puts "=== blockHash ==="
     while i < @content.length-1
@@ -51,7 +51,7 @@ class InputText
 	  i = 0
 	  #while i < @content.length-1
 			puts "--- search on block #{i} - #{i+BLOCK_SIZE} ---"
-			i = 150
+			i = 0
 			# one thread per block
 			threads << Thread.new() do
 				print "run block #{i/BLOCK_SIZE} thread\n"
@@ -67,7 +67,7 @@ class InputText
 
   #private method of the class
   private
-  def blockhash(a, pos)
+  def blockhash(a, pos)    # -> no si deve partire da BLOCK_SIZE-1 e si decrementa 
      hasharray = Array.new(0)
      sum = 0
      i = 0	
