@@ -19,36 +19,59 @@
 #    59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             #
 ############################################################################
 
-# PlagTion Version 0.0.1
+# This class of object contains all the information about a web page
+# There's an instance of this class for every web page result
+class Document
 
-require 'rubygems'
-require 'gscraper'
-require 'result_page'
-require 'input_text'
-require 'search'
-require 'net/http'
-require 'hpricot'
-require 'open-uri'
-require 'miohtml'
+	# size of word blocks used to build the hash table
+	@@bsize = 5
+	@@table_size = 209503
 
-BLOCK_SIZE = 5
-NUM_OF_PAGE = 1
-P = 1211 # costant used for Bentley McIlroy algorithm
-M = 209503
+	def initialize(url)
+	
+	end #init
+	
+	def parse(s)
+	
+	end #parse
+	
+	def doc_name()
+	
+	end #doc_name
+	
+	def to_s()
+	
+	end #to_s
+	
+	def num_words()
+	
+	end #num_words
+	
+end # class
 
-def main()
-	i = 0
-	j = BLOCK_SIZE-1
-	x = InputText.new()
-	x.readtext("test.txt")
-end # main
+class MasterDocument < Document
 
-main()
+	def initialize(url)
+	
+	end #init
+	
+	def get_words(url)
+	
+	end #get_words
+	
+	def search_overlaps(url)
+	
+	end #search_overlaps 
+
+end #class
+
 
 =begin
 
-call external program
-a = `ls`
-a.each {|x| puts x}
+Metodi da fare:
+- Ricerca similarità tra testo in input e obj ResultPage
+
+Domande:
+- Ricerca (algo Rabin Karp) : elevazione a potenza per i vari blocchi (come procede)
 
 =end
