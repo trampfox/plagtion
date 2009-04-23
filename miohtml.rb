@@ -13,7 +13,7 @@ require 'open-uri'
 		#if (fname.kind_of?(URI::HTTP))
 			doc = Hpricot(open(fname))
 			# --- save the html of the current page
-			f = File.new("last.html","w")
+			f = File.new("./tmp/last.html","w")
 			f.puts doc.to_html
 			f.close
 		#end # if

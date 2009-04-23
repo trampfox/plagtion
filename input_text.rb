@@ -23,10 +23,7 @@
 class InputText
 	
   def initialize()
-		@content = Array.new(0)
-    @buffer = ""
-    # integers indexes list (M elements). Each index points to the begin of the word block
-		@indexTable = Array.new(M) {Array.new}
+		
 		@resultList = Array.new(0) {Array.new}
   end
 

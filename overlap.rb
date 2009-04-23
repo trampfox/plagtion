@@ -42,4 +42,3 @@ class Overlap
 	
 end
 
-x = StdClass.new

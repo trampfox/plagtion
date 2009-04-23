@@ -28,7 +28,39 @@ class Document
 	@@table_size = 209503
 
 	def initialize(url)
-	
+		@content = Array.new(0)
+    # integers indexes list (M elements). Each index points to the begin of the word block
+		@indexTable = Array.new(@@bsize) {Array.new}
+		i = 0
+    j = @@bsize - 1
+
+		# read the file pointed by url. String -> local file / URI -> web file 
+		if (url.kind_of?(String))
+			filename = url.split('.')
+			# text file
+			if (filename.include?("txt"))
+				@content = IO.read(url).downcase!.split(/\W+/u)
+			# pdf file
+			elsif (filename.include?("pdf"))
+				#pdftotext problem: it uses UTF-8 encoding
+				# special letters (like è,ò,à,ù,ì) will not be represented
+				command = "pdftotext "+url
+				system(command)
+				textfile = url[0..url.length-4]+"txt"
+				puts textfile
+				@content = IO.read(textfile).downcase!.split(/\W+/u)
+			end #if
+		elsif (url.kind_of?(URI::HTTP))
+			@content = htmlfile2text(url)
+			file = File.new("./tmp/#{@@count}-#{@title[0,10]}", "w")
+			file.puts textdoc
+			file.close
+		end #if
+		
+		
+		# convertirlo se necessario
+		# parsing
+		# mem risultati in variabili di instanza (quelle iniz sopra)
 	end #init
 	
 	def parse(s)
@@ -47,12 +79,22 @@ class Document
 	
 	end #num_words
 	
+	private
+	# read and convert (if it's not a text file) the object linked by url
+	def Document.read_text(url)
+		
+	end #read_text
+	
+	def Document.hash_array
+	
+	end #hash_array
+	
 end # class
 
 class MasterDocument < Document
 
 	def initialize(url)
-	
+		super(url)
 	end #init
 	
 	def get_words(url)

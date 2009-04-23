@@ -23,24 +23,22 @@
 
 require 'rubygems'
 require 'gscraper'
-require 'result_page'
-require 'input_text'
-require 'search'
+require 'document'
+require 'overlap'
 require 'net/http'
 require 'hpricot'
 require 'open-uri'
 require 'miohtml'
+require 'url_manager'
 
-BLOCK_SIZE = 5
+
 NUM_OF_PAGE = 1
-P = 1211 # costant used for Bentley McIlroy algorithm
-M = 209503
+# costant used for Bentley McIlroy algorithm
+P = 1211 
+#M = 209503
 
 def main()
-	i = 0
-	j = BLOCK_SIZE-1
-	x = InputText.new()
-	x.readtext("test.txt")
+	doc = MasterDocument.new("./test/Ruby2Java.pdf")	
 end # main
 
 main()
