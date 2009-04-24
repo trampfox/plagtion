@@ -34,7 +34,7 @@ require 'search_engine'
 
 
 NUM_OF_PAGES = 1
-NUM_OF_SEARCHS = 5
+NUM_OF_SEARCHS = 2
 # costant used for Bentley McIlroy algorithm
 P = 1211 
 #M = 209503

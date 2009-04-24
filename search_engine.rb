@@ -29,6 +29,7 @@ class SearchEngine
 		@doc_ref = obj_ref
 		@searchString = []
 		@tmpList = [] # temp URL list
+		@urlManager = UrlManager.new()
 	end #init
 
 	def search(num_of_pages)
@@ -40,7 +41,6 @@ class SearchEngine
 			@searchString << @doc_ref.get_words(index, @bsize)
 		end #for
 		puts "searchString -> #{@searchString}"  # test output
-		urlManager = UrlManager.new()
 	end
 	
 end #class
@@ -63,8 +63,7 @@ class GoogleSearchEngine < SearchEngine
 					end # do
 				end #for
 			end # for
-			puts @tmpList
-			#urlManager.add_urls(tmpList)
+			@urlManager.add_urls(@tmpList)
 		end #search
 		
 end #class

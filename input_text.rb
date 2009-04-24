@@ -31,17 +31,10 @@ class InputText
   def readtext(file)
 		# array that contains all threads
 		threads = []
-		i = 0
-    j = BLOCK_SIZE - 1
+		
     @content = IO.read(file).downcase!.split(/\W+/u) # each element of @content is a word
     puts @content
-    #puts "=== blockHash ==="
-    while i < @content.length-1
-			# i is the index of the first word 
-      blockhash(@content[i..j], i)
-      i = j+1
-      j = j+BLOCK_SIZE
-    end # while
+     
     #puts "=== blockHash end ==="
 	  # creare vari oggetti ResultPage, uno per ogni blocco
     puts "=== call search private method ==="

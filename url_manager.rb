@@ -20,8 +20,24 @@
 
 class UrlManager
 
+	def initialize
+		@urlList = [] # list of URL found by searching 
+	end #init
+	
 	def add_urls(lis)
-		
+		begin
+			for url in lis
+				if !@urlList.include?(url)
+					@urlList << url
+					puts "-- #{url} added --"
+				else
+					puts "-- #{url} is already present in the list --"
+				end #if
+			end #for
+		rescue NoMethodError  # first run, urlList = nil
+			@urlList[0] = url
+			puts "-- #{url} added --"
+		end
 	end #add_urls
  	
 	def get_next()

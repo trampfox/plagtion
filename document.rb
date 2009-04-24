@@ -64,7 +64,6 @@ class Document
 			puts "=== searching on 5 random block ==="
 			google = GoogleCachedSearchEngine.new(self, @content, @@bsize)
 			google.search(NUM_OF_PAGES)
-			
 		elsif (url.kind_of?(URI::HTTP))
 			@content = Document.mysplit(htmlfile2text(url))
 			file = File.new("./tmp/#{@@count}-#{@title[0,10]}", "w")
