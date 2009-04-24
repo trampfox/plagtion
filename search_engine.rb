@@ -17,25 +17,60 @@
 #       Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #       MA 02110-1301, USA.
 
+# search on NUM_OF_SEARCH random text block from the input document
 
 class SearchEngine
 
-	def initialize()
-		
-	end
-	
-	def search(wlist, n)
-		
+	# block: text block to search
+	# index: position of the first word of the block
+	def initialize(obj_ref, wlist, bsize)
+		@wlist = wlist
+		@bsize = bsize
+		@doc_ref = obj_ref
+	end #init
+
+	def search(num_of_pages)
+		randomBlock = []
+		NUM_OF_SEARCHS.times do  # take random indexes from wlist
+			randomBlock << rand(@wlist.length)
+		end
+		for index in randomBlock
+			searchString = @doc_ref.get_words(index, @bsize)
+			puts "searchString -> #{searchString}"
+		end #for
 	end
 	
 end #class
 
 class GoogleSearchEngine < SearchEngine
-
+	
+		def initialize(obj_ref, wlist, bsize)
+			super(obj_ref, wlist, bsize)
+		end #init
+		
+		def search(num_of_pages)
+			super(num_of_pages)
+		end #search
+		
 end #class
 
 class GoogleCachedSearchEngine < GoogleSearchEngine
 
+	def initialize(obj_ref, wlist, bsize)
+		super(obj_ref, wlist, bsize)
+	end #init
+		
+	def search(num_of_pages)
+		randomBlock = []
+		NUM_OF_SEARCHS.times do  # take random indexes from wlist
+			randomBlock << rand(@wlist.length)
+		end
+		for index in randomBlock
+			searchString = @doc_ref.get_words(index, @bsize)
+			puts "searchString -> #{searchString}"
+		end #for
+	end #search
+		
 end #class
 
 class YahooSearchEngine < SearchEngine

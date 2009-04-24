@@ -22,13 +22,14 @@
 # This class of object contains all the information about a web page
 # There's an instance of this class for every web page result
 class Document
-
+	attr_reader :content
+	
 	# size of word blocks used to build the hash table
 	@@bsize = 5
 	@@table_size = 209503
 
 	def initialize(url)
-		@content = Array.new(0)
+		@content = Array.new(0) # Array of elements [w, pos]
     # integers indexes list (M elements). Each index points to the begin of the word block
 		@indexTable = Array.new(@@table_size) {Array.new(0)}
 		i = 0
@@ -49,6 +50,7 @@ class Document
 				@content = Document.mysplit(IO.read(textfile)) 
 				#puts @content.inspect 
 			end #if
+			
 			# calculate the hash of the input text block
 			puts "=== blockHash ==="
 			while i < @content.length-1
@@ -56,15 +58,19 @@ class Document
 				i = j+1
 				j = j+@@bsize
 			end # while
+			
 			puts "=== end blockHash ==="
 			puts @indexTable.size
+			puts "=== searching on 5 random block ==="
+			google = GoogleCachedSearchEngine.new(self, @content, @@bsize)
+			google.search(NUM_OF_PAGES)
+			
 		elsif (url.kind_of?(URI::HTTP))
 			@content = Document.mysplit(htmlfile2text(url))
 			file = File.new("./tmp/#{@@count}-#{@title[0,10]}", "w")
 			file.puts @content
-			file.close
+			file.close		
 		end #if
-
 	end #init
 	
 	def blockhash(a, pos)
@@ -92,10 +98,6 @@ class Document
 	end #num_words
 	
 	private
-	# read and convert (if it's not a text file) the object linked by url
-	def Document.read_text(url)
-		
-	end #read_text
 	
 	# convert accented vowels in place
 	def Document.remove_accent!(s)
@@ -132,14 +134,19 @@ class MasterDocument < Document
 
 	def initialize(url)
 		super(url)
+		
 	end #init
 	
-	def get_words(url)
-	
+	def get_words(n, k)
+		wordlist = []
+		for i in n...n+k
+			wordlist << @content[i][0]+" "
+		end
+		return wordlist
 	end #get_words
 	
 	def search_overlaps(url)
-	
+		
 	end #search_overlaps 
 
 end #class

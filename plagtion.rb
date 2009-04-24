@@ -30,9 +30,11 @@ require 'hpricot'
 require 'open-uri'
 require 'miohtml'
 require 'url_manager'
+require 'search_engine'
 
 
-NUM_OF_PAGE = 1
+NUM_OF_PAGES = 1
+NUM_OF_SEARCHS = 5
 # costant used for Bentley McIlroy algorithm
 P = 1211 
 #M = 209503
