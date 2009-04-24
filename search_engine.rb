@@ -27,6 +27,8 @@ class SearchEngine
 		@wlist = wlist
 		@bsize = bsize
 		@doc_ref = obj_ref
+		@searchString = []
+		@tmpList = [] # temp URL list
 	end #init
 
 	def search(num_of_pages)
@@ -35,9 +37,10 @@ class SearchEngine
 			randomBlock << rand(@wlist.length)
 		end
 		for index in randomBlock
-			searchString = @doc_ref.get_words(index, @bsize)
-			puts "searchString -> #{searchString}"
+			@searchString << @doc_ref.get_words(index, @bsize)
 		end #for
+		puts "searchString -> #{@searchString}"  # test output
+		urlManager = UrlManager.new()
 	end
 	
 end #class
@@ -50,6 +53,18 @@ class GoogleSearchEngine < SearchEngine
 		
 		def search(num_of_pages)
 			super(num_of_pages)
+			for query in @searchString
+				puts "=== query -> #{query} ==="
+				q = GScraper::Search.query(:query => query)
+				for i in 1..NUM_OF_PAGES
+					q.each_on_page(i) do |result|
+				#puts "=== Array Index #{index/BLOCK_SIZE} ===" TEST
+					@tmpList << result.url
+					end # do
+				end #for
+			end # for
+			puts @tmpList
+			#urlManager.add_urls(tmpList)
 		end #search
 		
 end #class
@@ -61,14 +76,8 @@ class GoogleCachedSearchEngine < GoogleSearchEngine
 	end #init
 		
 	def search(num_of_pages)
-		randomBlock = []
-		NUM_OF_SEARCHS.times do  # take random indexes from wlist
-			randomBlock << rand(@wlist.length)
-		end
-		for index in randomBlock
-			searchString = @doc_ref.get_words(index, @bsize)
-			puts "searchString -> #{searchString}"
-		end #for
+		super(num_of_pages)
+		
 	end #search
 		
 end #class
