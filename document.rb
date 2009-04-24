@@ -30,42 +30,54 @@ class Document
 	def initialize(url)
 		@content = Array.new(0)
     # integers indexes list (M elements). Each index points to the begin of the word block
-		@indexTable = Array.new(@@bsize) {Array.new}
+		@indexTable = Array.new(@@table_size) {Array.new(0)}
 		i = 0
     j = @@bsize - 1
 
 		# read the file pointed by url. String -> local file / URI -> web file 
 		if (url.kind_of?(String))
 			filename = url.split('.')
-			# text file
-			if (filename.include?("txt"))
-				@content = IO.read(url).downcase!.split(/\W+/u)
-			# pdf file
-			elsif (filename.include?("pdf"))
-				#pdftotext problem: it uses UTF-8 encoding
+			if (filename.include?("txt"))  # text file
+				@content = Document.mysplit(IO.read(url))
+			elsif (filename.include?("pdf"))  # pdf file
+				# pdftotext problem: it uses UTF-8 encoding
 				# special letters (like è,ò,à,ù,ì) will not be represented
 				command = "pdftotext "+url
 				system(command)
 				textfile = url[0..url.length-4]+"txt"
 				puts textfile
-				@content = IO.read(textfile).downcase!.split(/\W+/u)
+				@content = Document.mysplit(IO.read(textfile)) 
+				#puts @content.inspect 
 			end #if
+			# calculate the hash of the input text block
+			puts "=== blockHash ==="
+			while i < @content.length-1
+				blockhash(@content[i..j], i)  # i is the index of the first word 
+				i = j+1
+				j = j+@@bsize
+			end # while
+			puts "=== end blockHash ==="
+			puts @indexTable.size
 		elsif (url.kind_of?(URI::HTTP))
-			@content = htmlfile2text(url)
+			@content = Document.mysplit(htmlfile2text(url))
 			file = File.new("./tmp/#{@@count}-#{@title[0,10]}", "w")
-			file.puts textdoc
+			file.puts @content
 			file.close
 		end #if
-		
-		
-		# convertirlo se necessario
-		# parsing
-		# mem risultati in variabili di instanza (quelle iniz sopra)
+
 	end #init
 	
-	def parse(s)
-	
-	end #parse
+	def blockhash(a, pos)
+		hasharray = Array.new(0)
+		sum = 0
+		i = @@bsize-1
+		for x in a
+			hasharray << x.hash * P**i
+			i = i-1
+		end
+		hasharray.each {|elem| sum = sum + elem}
+		@indexTable[sum % @@table_size] << pos # posizione della prima parola con un dato hash
+	end #blockhash
 	
 	def doc_name()
 	
@@ -85,10 +97,35 @@ class Document
 		
 	end #read_text
 	
-	def Document.hash_array
-	
-	end #hash_array
-	
+	# convert accented vowels in place
+	def Document.remove_accent!(s)
+		s.gsub!(/[àéèìòù]/) do |c|
+			case c
+				when  /à/: "a"
+				when  /ì/: "i"
+				when  /ò/: "o"
+				when  /ù/: "u"
+				else       "e"
+			end
+		end
+		return s
+	end
+
+	# parse s into a sequence of words returning the list of words 
+	# together with their starting position in the input
+	def Document.mysplit(s,wlimit=3)
+		wlist = []
+		word_def = /[[:alpha:]|àèéìòù]+/ # regex
+		s.scan(word_def) do |w| 
+			if w.size >= wlimit
+				wpos = $`.size          # starting position in s of w
+				remove_accent!(w)       # convert accented chars in place
+				w.downcase!             # convert case
+				wlist << [w, wpos]      # save in list
+			end
+		end
+		wlist
+	end
 end # class
 
 class MasterDocument < Document

@@ -38,7 +38,8 @@ P = 1211
 #M = 209503
 
 def main()
-	doc = MasterDocument.new("./test/Ruby2Java.pdf")	
+	doc = MasterDocument.new("./test/Ruby2Java.pdf")	# input document
+	puts "=== searching on 5 random block ==="
 end # main
 
 main()

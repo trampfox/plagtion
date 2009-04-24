@@ -18,7 +18,7 @@ require 'open-uri'
 			f.close
 		#end # if
 		text = html2text(doc)
-		text.strip.gsub(/\n{2,}/, "\n\n")
+		text.strip.gsub(/\n\s\n/, "\n\n")
 	end
 
 	def html2text(a)
