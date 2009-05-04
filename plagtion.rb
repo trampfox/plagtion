@@ -36,12 +36,19 @@ require 'search_engine'
 NUM_OF_PAGES = 1
 NUM_OF_SEARCHS = 2
 P = 1211 # costant used for Bentley McIlroy algorithm
+$expTable = Array.new(0)
 
 def main()
+	init_expTable()
 	doc = MasterDocument.new("./test/Ruby2Java.pdf")	# input document
 	puts "=== searching on 5 random block ==="
 end # main
 
+def init_expTable()
+		for i in 0...@bsize
+			$expTable << P**i
+		end
+end
 main()
 
 =begin

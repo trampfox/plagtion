@@ -134,10 +134,10 @@ class Document
 end # class
 
 class MasterDocument < Document
-
+	
 	def initialize(url)
 		super(url)
-		
+		init_expTable()
 	end #init
 	
 	def get_words(n, k)
