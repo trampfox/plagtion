@@ -61,9 +61,9 @@ class Document
 			
 			puts "=== end blockHash ==="
 			puts @indexTable.size
-			puts "=== searching on 5 random block ==="
+			puts "=== searching on #{NUM_OF_SEARCHS} random block ==="
 			google = GoogleCachedSearchEngine.new(self, @content, @@bsize)
-			google.search(NUM_OF_PAGES)
+			resultUrl = google.search(NUM_OF_PAGES) # return an UrlManager obj 
 		elsif (url.kind_of?(URI::HTTP))
 			@content = Document.mysplit(htmlfile2text(url))
 			file = File.new("./tmp/#{@@count}-#{@title[0,10]}", "w")
@@ -139,7 +139,11 @@ class MasterDocument < Document
 	def get_words(n, k)
 		wordlist = []
 		for i in n...n+k
-			wordlist << @content[i][0]+" "
+			begin
+				wordlist << @content[i][0]+" "
+			rescue NoMethodError # if the last block is small then 5 words 
+				return wordlist
+			end #rescue
 		end
 		return wordlist
 	end #get_words

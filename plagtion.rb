@@ -19,7 +19,7 @@
 #    59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             #
 ############################################################################
 
-# PlagTion Version 0.0.1
+# PlagTion Version 0.0.2
 
 require 'rubygems'
 require 'gscraper'
@@ -35,9 +35,7 @@ require 'search_engine'
 
 NUM_OF_PAGES = 1
 NUM_OF_SEARCHS = 2
-# costant used for Bentley McIlroy algorithm
-P = 1211 
-#M = 209503
+P = 1211 # costant used for Bentley McIlroy algorithm
 
 def main()
 	doc = MasterDocument.new("./test/Ruby2Java.pdf")	# input document

@@ -76,7 +76,18 @@ class GoogleCachedSearchEngine < GoogleSearchEngine
 		
 	def search(num_of_pages)
 		super(num_of_pages)
-		
+		for query in @searchString
+				puts "=== query -> #{query} ==="
+				q = GScraper::Search.query(:query => query)
+				for i in 1..NUM_OF_PAGES
+					q.each_on_page(i) do |result|
+				#puts "=== Array Index #{index/BLOCK_SIZE} ===" TEST
+					@tmpList << result.url+"&gl=it&strip=1"
+					end # do
+				end #for
+			end # for
+			@urlManager.add_urls(@tmpList)
+			return @urlManager
 	end #search
 		
 end #class
