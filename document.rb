@@ -43,9 +43,7 @@ class Document
 			if (filename.include?("txt"))  # text file
 				@content = Document.mysplit(IO.read(url))
 			elsif (filename.include?("pdf"))  # pdf file
-				# pdftotext problem: it uses UTF-8 encoding
-				# special letters (like è,ò,à,ù,ì) will not be represented
-				command = "pdftotext "+url
+				command = "pdftotext -enc Latin1 -nopgbrk "+url
 				system(command)
 				textfile = url[0..url.length-4]+"txt"
 				puts textfile
@@ -56,13 +54,12 @@ class Document
 			# calculate the hash of the input text block
 			puts "=== blockHash ==="
 			while i < @content.length-1
-				blockhash(@content[i..j], i)  # i is the index of the first word 
+				blockhash(@content[i..j], i, 0)  # i is the index of the first word 
 				i = j+1
 				j = j+@@bsize
 			end # while
 			
 			puts "=== end blockHash ==="
-			puts @indexTable.size
 			puts "=== searching on #{NUM_OF_SEARCHS} random block ==="
 			google = GoogleCachedSearchEngine.new(self, @content, @@bsize)
 			resultUrl = google.search(NUM_OF_PAGES) # return an UrlManager obj 
@@ -74,16 +71,24 @@ class Document
 		end #if
 	end #init
 	
-	def blockhash(a, pos)
+	def blockhash(a, pos, type)
 		hasharray = Array.new(0)
 		sum = 0
-		i = @@bsize-1
+		i = @bsize-1
 		for x in a
-			hasharray << x.hash * P**i
+			hasharray << x.hash.abs * @expTable[i]
 			i = i-1
 		end
 		hasharray.each {|elem| sum = sum + elem}
-		@indexTable[sum % @@table_size] << pos # posizione della prima parola con un dato hash
+		@last_hashvalue = sum
+		@last_fbvalue = hasharray[0]
+		#puts "last_hasvalue -> #{@last_hashvalue}  last_fbvalue -> #{@last_fbvalue}"
+		if (type == 0) # master document
+			@indexTable[sum % @table_size] << pos # posizione della prima parola con un dato hash
+		return (sum % @table_size)
+		else # other document
+			return (sum % @table_size) # return hash of block
+		end #if
 	end #blockhash
 	
 	# return url used to create self 
@@ -124,6 +129,7 @@ class Document
 		s.scan(word_def) do |w| 
 			if w.size >= wlimit
 				wpos = $`.size          # starting position in s of w
+				# at page 319 of programming ruby 
 				remove_accent!(w)       # convert accented chars in place
 				w.downcase!             # convert case
 				wlist << [w, wpos]      # save in list
