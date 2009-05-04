@@ -27,8 +27,10 @@ class Document
 	# size of word blocks used to build the hash table
 	@@bsize = 5
 	@@table_size = 209503
+	@doc_name = ""
 
 	def initialize(url)
+		@doc_name = url
 		@content = Array.new(0) # Array of elements [w, pos]
     # integers indexes list (M elements). Each index points to the begin of the word block
 		@indexTable = Array.new(@@table_size) {Array.new(0)}
@@ -84,16 +86,18 @@ class Document
 		@indexTable[sum % @@table_size] << pos # posizione della prima parola con un dato hash
 	end #blockhash
 	
+	# return url used to create self 
 	def doc_name()
-	
+		return @doc_name
 	end #doc_name
 	
 	def to_s()
-	
+		
 	end #to_s
 	
+	# return the words number in the self parsing
 	def num_words()
-	
+		return @content.size
 	end #num_words
 	
 	private
