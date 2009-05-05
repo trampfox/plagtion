@@ -45,13 +45,12 @@ class Document
 			file.close
 			@@count += 1
 		else # local files
-			puts "== using module Readers =="
-			begin
-				@text = Readers::get_text(url)
+			if ((@text = Readers::get_text(url)) == "")
+				puts "Error while reading file. See the logfile for more information"
+				exit()
+			else
 				@content = Document.mysplit(@text) 
-			rescue Readers::ReaderError => e
-				puts e
-			end			
+			end #if
 			# calculate the hash of the input text block
 			puts "=== blockHash ==="
 			while i < @content.length-1

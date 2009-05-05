@@ -45,9 +45,9 @@ class Plagtion
 	
 	def main()
 		Plagtion.init_expTable()
-		puts $$ # print the process number
+		$logger.debug "PID: #{$$}" # process number
 		doc = MasterDocument.new("./test/Ruby2Java.pdf")	# input document
-		puts "Document name: #{doc.doc_name}"
+		$logger.info("Plagtion") {"Document name: #{doc.doc_name}"}
 	end # main
 
 	# da usare dal modulo
@@ -61,11 +61,14 @@ end #class
 
 program = Plagtion.new
 program.main()
+# close log file
+$logger.close
 
 =begin
 
-call external program
-a = `ls`
-a.each {|x| puts x}
-
+Domande:
+	* Modulo (Plagtion) 
+	* Ricerca similarità (overlap)
+	* va bene ocntrollo su lettura file?
+	
 =end

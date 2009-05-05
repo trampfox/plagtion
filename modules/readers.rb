@@ -19,7 +19,7 @@ require 'logger'
 
 
 # create a log file and store it in a global variable 
-$logger = Logger.new('logfile.log')
+$logger = Logger.new('log/logfile.log')
 
 
 module Readers
@@ -140,5 +140,3 @@ if ARGV[0]
   puts Readers::get_text(ARGV[0])
 end
 
-# close log file
-$logger.close
