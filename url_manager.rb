@@ -43,7 +43,10 @@ class UrlManager
 	end #add_urls
  	
 	def get_next()
-	
+		last = @urlList.size-1 # last item index
+		item = @urlList.fetch(last) # last item
+		@urlList.delete_at(last) # deleting last item
+		return item
 	end #get_next
 	
 end

@@ -56,7 +56,7 @@ class GoogleSearchEngine < SearchEngine
 		def search(num_of_pages)
 			super(num_of_pages)
 			for query in @searchString
-				$logger.info("GoogleSearchEngine") {"=== query -> #{query} ==="}
+				$logger.info("GoogleSearchEngine") {"query -> #{query}"}
 				q = GScraper::Search.query(:query => query)
 				for i in 0...NUM_OF_PAGES
 					q.each_on_page(i) do |result|
@@ -78,7 +78,7 @@ class GoogleCachedSearchEngine < SearchEngine
 	def search(num_of_pages)
 		super(num_of_pages)
 		for query in @searchString
-				$logger.info("GoogleSearchEngine") {"=== query -> #{query} ==="}
+				$logger.info("GoogleSearchEngine") {"query -> #{query}"}
 				q = GScraper::Search.query(:query => query)
 				for i in 0...NUM_OF_PAGES
 					q.each_on_page(i) do |result|
