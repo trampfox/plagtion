@@ -23,11 +23,14 @@
 # There's an instance of this class for every web page result
 class Document
 	attr_reader :content
+	require 'modules/readers'
 	
 	# size of word blocks used to build the hash table
 	@@bsize = 5
 	@@table_size = 209503
+	@@count = 0
 	@doc_name = ""
+	@text = ""
 
 	def initialize(url)
 		@doc_name = url
@@ -36,21 +39,20 @@ class Document
 		@indexTable = Array.new(@@table_size) {Array.new(0)}
 		i = 0
     j = @@bsize - 1
-
-		# read the file pointed by url. String -> local file / URI -> web file 
-		if (url.kind_of?(String))
-			filename = url.split('.')
-			if (filename.include?("txt"))  # text file
-				@content = Document.mysplit(IO.read(url))
-			elsif (filename.include?("pdf"))  # pdf file
-				command = "pdftotext -enc Latin1 -nopgbrk "+url
-				system(command)
-				textfile = url[0..url.length-4]+"txt"
-				puts textfile
-				@content = Document.mysplit(IO.read(textfile)) 
-				#puts @content.inspect 
-			end #if
-			
+		if (url.kind_of?(URI::HTTP))
+			@content = Document.mysplit(htmlfile2text(url))
+			file = File.new("./tmp/#{@@count}-#{@title[0,10]}", "w")
+			file.puts @content
+			file.close
+			@@count += 1
+		else # local files
+			puts "== using module Readers =="
+			begin
+				@text = Readers::get_text(url)
+				@content = Document.mysplit(@text) 
+			rescue Readers::ReaderError => e
+				puts e
+			end			
 			# calculate the hash of the input text block
 			puts "=== blockHash ==="
 			while i < @content.length-1
@@ -62,12 +64,7 @@ class Document
 			puts "=== end blockHash ==="
 			puts "=== searching on #{NUM_OF_SEARCHS} random block ==="
 			google = GoogleCachedSearchEngine.new(self, @content, @@bsize)
-			resultUrl = google.search(NUM_OF_PAGES) # return an UrlManager obj 
-		elsif (url.kind_of?(URI::HTTP))
-			@content = Document.mysplit(htmlfile2text(url))
-			file = File.new("./tmp/#{@@count}-#{@title[0,10]}", "w")
-			file.puts @content
-			file.close		
+			resultUrl = google.search(NUM_OF_PAGES) # return an UrlManager obj 		
 		end #if
 	end #init
 	
@@ -97,7 +94,7 @@ class Document
 	end #doc_name
 	
 	def to_s()
-		
+		return @text
 	end #to_s
 	
 	# return the words number in the self parsing
@@ -143,7 +140,6 @@ class MasterDocument < Document
 	
 	def initialize(url)
 		super(url)
-		init_expTable()
 	end #init
 	
 	def get_words(n, k)

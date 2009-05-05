@@ -1,21 +1,23 @@
-#       search_engine.rb
-#       
-#       Copyright 2009 Davide Monfrecola <davide.monfrecola@gmail.com>
-#       
-#       This program is free software; you can redistribute it and/or modify
-#       it under the terms of the GNU General Public License as published by
-#       the Free Software Foundation; either version 2 of the License, or
-#       (at your option) any later version.
-#       
-#       This program is distributed in the hope that it will be useful,
-#       but WITHOUT ANY WARRANTY; without even the implied warranty of
-#       MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#       GNU General Public License for more details.
-#       
-#       You should have received a copy of the GNU General Public License
-#       along with this program; if not, write to the Free Software
-#       Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-#       MA 02110-1301, USA.
+#!/usr/bin/env ruby
+############################################################################
+#    Copyright (C) 2009 by Davide Monfrecola                               #
+#    davide.monfrecola@gmail.com                                           #
+#                                                                          #
+#    This program is free software; you can redistribute it and#or modify  #
+#    it under the terms of the GNU General Public License as published by  #
+#    the Free Software Foundation; either version 2 of the License, or     #
+#    (at your option) any later version.                                   #
+#                                                                          #
+#    This program is distributed in the hope that it will be useful,       #
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of        #
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         #
+#    GNU General Public License for more details.                          #
+#                                                                          #
+#    You should have received a copy of the GNU General Public License     #
+#    along with this program; if not, write to the                         #
+#    Free Software Foundation, Inc.,                                       #
+#    59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             #
+############################################################################
 
 # search on NUM_OF_SEARCH random text block from the input document
 
@@ -58,7 +60,6 @@ class GoogleSearchEngine < SearchEngine
 				q = GScraper::Search.query(:query => query)
 				for i in 0...NUM_OF_PAGES
 					q.each_on_page(i) do |result|
-				#puts "=== Array Index #{index/BLOCK_SIZE} ===" TEST
 					@tmpList << result.url
 					end # do
 				end #for
@@ -82,10 +83,10 @@ class GoogleCachedSearchEngine < SearchEngine
 				for i in 0...NUM_OF_PAGES
 					q.each_on_page(i) do |result|
 						cached = result.cached_url
-						#puts "inspect #{result.cached_url.inspect}"
-					#puts "=== Array Index #{index/BLOCK_SIZE} ===" TEST
+						puts cached
 						if (cached.kind_of?(URI::HTTP))
-							@tmpList << (cached.query+="&gl=it&strip=1") # dovrebbe essere ok
+							(cached.query+="&gl=it&strip=1")
+							@tmpList << cached # dovrebbe essere ok
 						end #if
 					end # do
 				end #for

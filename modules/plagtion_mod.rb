@@ -18,5 +18,24 @@
 #    Free Software Foundation, Inc.,                                       #
 #    59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             #
 ############################################################################
+=begin
+	
+		The module Plagtion contains methods and costants used in the main program.
+		
+=end
 
+	module Plagtion
+	
+		NUM_OF_PAGES = 1
+		NUM_OF_SEARCHS = 2
+		P = 1211 # costant used for Bentley McIlroy algorithm
+		BSIZE = 5
+		$expTable = Array.new(0)
+		
+		def init_expTable()
+			for i in 0...BSIZE
+			$expTable << P**i
+			end
+		end
 
+	end # module
