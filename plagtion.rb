@@ -31,6 +31,8 @@ require 'open-uri'
 require 'miohtml'
 require 'url_manager'
 require 'search_engine'
+require 'lib/ysearch'
+require 'modules/readers'
 
 
 NUM_OF_PAGES = 1

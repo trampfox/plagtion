@@ -23,7 +23,6 @@
 # There's an instance of this class for every web page result
 class Document
 	attr_reader :content
-	require 'modules/readers'
 	
 	# size of word blocks used to build the hash table
 	@@bsize = 5

@@ -31,17 +31,14 @@ class UrlManager
 			for url in lis
 				if !@urlList.include?(url)
 					@urlList << url
-					puts url
-					puts "-- added --"
+					puts "-- #{url} added --"
 				else
-					puts url
-					puts "-- is already present in the list --"
+					puts "-- #{url} is already present in the list --"
 				end #if
 			end #for
 		rescue NoMethodError  # first run, urlList = nil
 			@urlList[0] = url
-			puts url
-			puts "-- added --"
+			puts "-- #{url} added --"
 		end #rescue
 	end #add_urls
  	

@@ -83,8 +83,7 @@ class GoogleCachedSearchEngine < SearchEngine
 				for i in 0...NUM_OF_PAGES
 					q.each_on_page(i) do |result|
 						cached = result.cached_url
-						puts cached
-						if (cached.kind_of?(URI::HTTP))
+						if (cached.kind_of?(URI::HTTP)) # exclude URI::Generic obj
 							(cached.query+="&gl=it&strip=1")
 							@tmpList << cached # dovrebbe essere ok
 						end #if
@@ -99,4 +98,19 @@ end #class
 
 class YahooSearchEngine < SearchEngine
 
+	def initialize()
+    @language='it'          # only italian pages
+    @app_id = 'YahooDemo'   # this works, but plase use your id
+  end
+
+  def search(wlist,n)
+    # create query
+    query = wlist.join(" ")
+    obj = WebSearch.new(@app_id, query, 'all', n)
+    obj.set_language(@language)
+    # get the results -- returns an array of hashes
+    results = obj.parse_results
+    results.map {|r| r['Url']}   # get url  
+   end
+   
 end #class
