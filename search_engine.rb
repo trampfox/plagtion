@@ -56,7 +56,7 @@ class GoogleSearchEngine < SearchEngine
 			for query in @searchString
 				puts "=== query -> #{query} ==="
 				q = GScraper::Search.query(:query => query)
-				for i in 1..NUM_OF_PAGES
+				for i in 0...NUM_OF_PAGES
 					q.each_on_page(i) do |result|
 				#puts "=== Array Index #{index/BLOCK_SIZE} ===" TEST
 					@tmpList << result.url
@@ -68,7 +68,7 @@ class GoogleSearchEngine < SearchEngine
 		
 end #class
 
-class GoogleCachedSearchEngine < GoogleSearchEngine
+class GoogleCachedSearchEngine < SearchEngine
 
 	def initialize(obj_ref, wlist, bsize)
 		super(obj_ref, wlist, bsize)
@@ -79,10 +79,14 @@ class GoogleCachedSearchEngine < GoogleSearchEngine
 		for query in @searchString
 				puts "=== query -> #{query} ==="
 				q = GScraper::Search.query(:query => query)
-				for i in 1..NUM_OF_PAGES
+				for i in 0...NUM_OF_PAGES
 					q.each_on_page(i) do |result|
-				#puts "=== Array Index #{index/BLOCK_SIZE} ===" TEST
-					@tmpList << result.url+"&gl=it&strip=1"
+						cached = result.cached_url
+						#puts "inspect #{result.cached_url.inspect}"
+					#puts "=== Array Index #{index/BLOCK_SIZE} ===" TEST
+						if (cached.kind_of?(URI::HTTP))
+							@tmpList << (cached.query+="&gl=it&strip=1") # dovrebbe essere ok
+						end #if
 					end # do
 				end #for
 			end # for

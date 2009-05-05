@@ -74,9 +74,9 @@ class Document
 	def blockhash(a, pos, type)
 		hasharray = Array.new(0)
 		sum = 0
-		i = @bsize-1
+		i = @@bsize-1
 		for x in a
-			hasharray << x.hash.abs * @expTable[i]
+			hasharray << x.hash.abs * $expTable[i]
 			i = i-1
 		end
 		hasharray.each {|elem| sum = sum + elem}
@@ -84,10 +84,10 @@ class Document
 		@last_fbvalue = hasharray[0]
 		#puts "last_hasvalue -> #{@last_hashvalue}  last_fbvalue -> #{@last_fbvalue}"
 		if (type == 0) # master document
-			@indexTable[sum % @table_size] << pos # posizione della prima parola con un dato hash
-		return (sum % @table_size)
+			@indexTable[sum % @@table_size] << pos # posizione della prima parola con un dato hash
+		return (sum % @@table_size)
 		else # other document
-			return (sum % @table_size) # return hash of block
+			return (sum % @@table_size) # return hash of block
 		end #if
 	end #blockhash
 	
