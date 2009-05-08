@@ -28,18 +28,24 @@ class Document
 	@@bsize = 5
 	@@table_size = 209503
 	@@count = 0
+	@@expTable = []
 	@doc_name = ""
 	@text = ""
+	#controllare se expTable è nil calcolarla altrimenti no
 
 	def initialize(url)
 		@doc_name = url
 		@content = Array.new(0) # Array of elements [w, pos]
     # integers indexes list (M elements). Each index points to the begin of the word block
 		@indexTable = Array.new(@@table_size) {Array.new(0)}
+		if @@expTable == []
+			init_expTable()
+			$logger.info("Document") {"@@expTable initialized"}
+		end #if
 		i = 0
     j = @@bsize - 1
 		if (url.kind_of?(URI::HTTP))
-			@content = Document.mysplit(htmlfile2text(url))
+			@content = parse(htmlfile2text(url))
 			file = File.new("./tmp/#{@@count}-#{@title[0,10]}", "w")
 			file.puts @content
 			file.close
@@ -49,42 +55,53 @@ class Document
 				puts "Error while reading file. See the logfile for more information"
 				exit()
 			else
-				@content = Document.mysplit(@text) 
+				@content = parse(@text)
+				$logger.info("Document") {"#{url} read (local file)"}
 			end #if
+		end #if
+=begin
 			# calculate the hash of the input text block
-			puts "=== blockHash ==="
-			while i < @content.length-1
-				blockhash(@content[i..j], i, 0)  # i is the index of the first word 
-				i = j+1
-				j = j+@@bsize
-			end # while
+
 			
 			puts "=== end blockHash ==="
 			puts "=== searching on #{NUM_OF_SEARCHS} random block ==="
 			google = GoogleCachedSearchEngine.new(self, @content, @@bsize)
 			resultUrl = google.search(NUM_OF_PAGES) # return an UrlManager obj 		
 		end #if
+=end
 	end #init
 	
-	def blockhash(a, pos, type)
+	# initialize the expTable
+	def init_expTable()
+			for i in 0...BSIZE
+				@@expTable << P**i
+			end
+	end
+	
+	def blockhash(a)
 		hasharray = Array.new(0)
 		sum = 0
-		i = @@bsize-1
+		i = @bsize-1
 		for x in a
-			hasharray << x.hash.abs * $expTable[i]
+			hasharray << (x.hash * @expTable[i]) % @table_size
 			i = i-1
 		end
 		hasharray.each {|elem| sum = sum + elem}
-		@last_hashvalue = sum
-		@last_fbvalue = hasharray[0]
-		#puts "last_hasvalue -> #{@last_hashvalue}  last_fbvalue -> #{@last_fbvalue}"
-		if (type == 0) # master document
-			@indexTable[sum % @@table_size] << pos # posizione della prima parola con un dato hash
-		return (sum % @@table_size)
-		else # other document
-			return (sum % @@table_size) # return hash of block
-		end #if
+		@last_hashvalue = sum % @table_size
+		@last_fbvalue = hasharray[0] # farlo solo se non master document
+		return (sum % @table_size) # return hash of block
 	end #blockhash
+	
+	# blockhash using the Bentley Ilroy algorithm
+	# a: word list
+	def blockhash_Bentley(a)
+		hasharray = Array.new(0)
+		temp = 0
+		temp = ((@last_hashvalue - @last_fbvalue) * P)+(a[@bsize-1].hash)
+		@last_hashvalue = temp % @table_size
+		@last_fbvalue = (((a[0].hash) * @expTable[@bsize-1])) % @table_size
+		return (temp % @table_size) # return hash of block
+	end # blockhash_Bentley
 	
 	# return url used to create self 
 	def doc_name()
@@ -103,7 +120,7 @@ class Document
 	private
 	
 	# convert accented vowels in place
-	def Document.remove_accent!(s)
+	def remove_accent!(s)
 		s.gsub!(/[àéèìòù]/) do |c|
 			case c
 				when  /à/: "a"
@@ -118,7 +135,7 @@ class Document
 
 	# parse s into a sequence of words returning the list of words 
 	# together with their starting position in the input
-	def Document.mysplit(s,wlimit=3)
+	def parse(s,wlimit=3)
 		wlist = []
 		word_def = /[[:alpha:]|àèéìòù]+/ # regex
 		s.scan(word_def) do |w| 
@@ -138,6 +155,15 @@ class MasterDocument < Document
 	
 	def initialize(url)
 		super(url)
+		# calculate the block hash and populate the indexTable
+		puts "=== blockHash (Document)==="
+			while i < @content.length-1 
+				wlist = get_words(i, @bsize)
+				hashValue = blockhash(wlist)  # i is the index of the first word in @content
+				@indexTable[hashValue] << i 
+				puts "#{wlist} ---> index #{@content[i][1]} hashValue -> #{hashValue}"
+				i = i+@bsize
+			end # while
 	end #init
 	
 	def get_words(n, k)

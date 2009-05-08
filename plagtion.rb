@@ -51,11 +51,7 @@ class Plagtion
 	end # main
 
 	# da usare dal modulo
-	def self.init_expTable()
-			for i in 0...BSIZE
-				$expTable << P**i
-			end
-	end
+	
 
 end #class
 
