@@ -38,20 +38,23 @@ require 'modules/readers'
 NUM_OF_PAGES = 1
 NUM_OF_SEARCHS = 2
 P = 1211 # costant used for Bentley McIlroy algorithm
-$expTable = Array.new(0)
 BSIZE = 5
 
 class Plagtion
 	
 	def main()
-		Plagtion.init_expTable()
 		$logger.debug "PID: #{$$}" # process number
-		doc = MasterDocument.new("./test/Ruby2Java.pdf")	# input document
-		$logger.info("Plagtion") {"Document name: #{doc.doc_name}"}
+		puts "== Create MasterDocument =="
+		doc = MasterDocument.new("./test/gpl.txt")	# input document
+		$logger.info("Plagtion") {"Master Document name: #{doc.doc_name}"}
+		"== Create Copy Document =="
+		doc2 = Document.new("./test/small_gpl.txt")
+		$logger.info("Plagtion") {"Document name: #{doc2.doc_name}"}
+		puts "== Search Overlaps =="
+		doc.search_overlaps(doc2)
+		puts "== Search Overlaps done =="
 	end # main
 
-	# da usare dal modulo
-	
 
 end #class
 
