@@ -184,6 +184,7 @@ class MasterDocument < Document
 	def search_overlaps(doc)
 		flag = 0 # if zero call blockhash else call Bentley McIlroy algorithm
 		i = 0
+		overlap = Overlap.new(self, doc)
 		
 		while i < (doc.content).length
 			wlist = doc.get_words(i, @@bsize) # wlist contains the block
@@ -201,6 +202,7 @@ class MasterDocument < Document
 						size = @extended_index["end_copy"] - @extended_index["start_copy"]
 						puts "!!== block of #{size} words found ==!!" 
 						puts ext_list = doc.get_words(@extended_index["start_copy"], size)
+						overlap.add(size, @extended_index) # add the overlap region that has just founded
 						i += size
 						flag = 0
 					else
@@ -219,6 +221,7 @@ class MasterDocument < Document
 			end #if
 			
 		end #while
+		return overlap
 	end #search_overlaps 
 
 	# control if the founded block hash is the same block 

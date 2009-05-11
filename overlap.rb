@@ -22,21 +22,33 @@
 
 class Overlap
 	
+	def initialize(master, copy)
+		@master_doc = master
+		@copy_doc = copy
+		@overlap = [] # list of overlap regions -> [n, [i,f], [is, fs]]
+	end #init
+	
 	def master_doc()
-		
+		return @master_doc
 	end
 	
 	def copy_doc()
-		
+		return @copy_doc
 	end
 	
 	def num_overlaps()
-		
+		#calcolare con index passati
 	end
 	
 	def tot_words()
 		
 	end	
+	
+	# size: size of common region
+	def add(size, ext_index)
+		@overlap << [size, [ext_index["start_master"], ext_index["end_master"]], [ext_index["start_copy"], ext_index["end_copy"]]]
+		$logger.debug("Overlap") {"Overlap region added"}
+	end #add
 	
 	def overlaps()
 		

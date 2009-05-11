@@ -53,9 +53,9 @@ class Plagtion
 		doc2 = Document.new("./test/small_gpl.txt")
 		$logger.info("Plagtion") {"Document name: #{doc2.doc_name}"}
 		puts "== Search Overlaps =="
-		doc.search_overlaps(doc2)
-		#overlap = doc.search_overlaps(doc2)
-		#@overlaps << overlap
+		#doc.search_overlaps(doc2)
+		overlap = doc.search_overlaps(doc2)
+		@overlaps << overlap # list of overlap object
 		puts "== Search Overlaps done =="
 	end # main
 
