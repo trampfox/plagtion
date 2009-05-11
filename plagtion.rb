@@ -42,6 +42,8 @@ BSIZE = 5
 
 class Plagtion
 	
+	@overlaps = [] # List of Overlap object
+	
 	def main()
 		$logger.debug "PID: #{$$}" # process number
 		puts "== Create MasterDocument =="
@@ -52,6 +54,8 @@ class Plagtion
 		$logger.info("Plagtion") {"Document name: #{doc2.doc_name}"}
 		puts "== Search Overlaps =="
 		doc.search_overlaps(doc2)
+		#overlap = doc.search_overlaps(doc2)
+		#@overlaps << overlap
 		puts "== Search Overlaps done =="
 	end # main
 
@@ -63,11 +67,3 @@ program.main()
 # close log file
 $logger.close
 
-=begin
-
-Domande:
-	* Modulo (Plagtion) 
-	* Ricerca similarità (overlap)
-	* va bene ocntrollo su lettura file?
-	
-=end

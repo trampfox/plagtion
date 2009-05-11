@@ -200,10 +200,8 @@ class MasterDocument < Document
 					if (block_control(doc, wlist, @indexTable[index][y], i))
 						size = @extended_index["end_copy"] - @extended_index["start_copy"]
 						puts "!!== block of #{size} words found ==!!" 
-						ext_list = doc.get_words(@extended_index["start_copy"], size)
-						puts ext_list
-						#puts ext_list
-						i = i+size
+						puts ext_list = doc.get_words(@extended_index["start_copy"], size)
+						i += size
 						flag = 0
 					else
 						puts "== block not found =="
@@ -211,13 +209,12 @@ class MasterDocument < Document
 						i = i+1
 						flag = 1
 					end #if
-					#puts "-- found #{y+1} occurrence(s) of block ->"
 					
 				end #for
 			else
 				puts "== block not found =="
 				puts wlist
-				i = i+1
+				i += 1
 				flag = 1
 			end #if
 			
@@ -227,7 +224,7 @@ class MasterDocument < Document
 	# control if the founded block hash is the same block 
 	# return the size of the founded string
 	# index_first: index of the first word block in @content
-	# index_second: index of the first word block in @content_2ndfile
+	# index_second: index of the first word block in doc.content
 	def block_control(doc, wlist, index_first, index_second)
 			wlist_master = get_words(index_first, @@bsize) # wlist contains the block
 			if (wlist_master == wlist)
@@ -277,8 +274,5 @@ end #class
 
 Metodi da fare:
 - Ricerca similarità tra testo in input e obj ResultPage
-
-Domande:
-- Ricerca (algo Rabin Karp) : elevazione a potenza per i vari blocchi (come procede)
 
 =end
