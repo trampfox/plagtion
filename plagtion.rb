@@ -21,43 +21,72 @@
 
 # PlagTion Version 0.0.2
 
-require 'rubygems'
-require 'gscraper'
-require 'document'
-require 'overlap'
-require 'net/http'
-require 'hpricot'
-require 'open-uri'
-require 'miohtml'
-require 'url_manager'
-require 'search_engine'
-require 'lib/ysearch'
-require 'modules/readers'
+require 'modules/plagtion_mod'
 
-
+=begin
 NUM_OF_PAGES = 1
 NUM_OF_SEARCHS = 2
 P = 1211 # costant used for Bentley McIlroy algorithm
 BSIZE = 5
+=end
+	P = 1211 # costant used for Bentley McIlroy algorithm
+	NUM_OF_PAGES = 1
+	NUM_OF_SEARCHS = 2
 
 class Plagtion
 	
-	@overlaps = [] # List of Overlap object
-	
 	def main()
+		@overlaps = [] # List of Overlap object
 		$logger.debug "PID: #{$$}" # process number
 		puts "== Create MasterDocument =="
 		doc = MasterDocument.new("./test/gpl.txt")	# input document
 		$logger.info("Plagtion") {"Master Document name: #{doc.doc_name}"}
+		
+		# create 2 Document obj for testing the methods
+		
 		"== Create Copy Document =="
 		doc2 = Document.new("./test/small_gpl.txt")
 		$logger.info("Plagtion") {"Document name: #{doc2.doc_name}"}
 		puts "== Search Overlaps =="
-		#doc.search_overlaps(doc2)
-		overlap = doc.search_overlaps(doc2)
-		@overlaps << overlap # list of overlap object
-		puts "== Search Overlaps done =="
+		#overlap = doc.search_overlaps(doc2)
+		@overlaps << doc.search_overlaps(doc2) # list of overlap object
+		"== Create Copy Document 2 =="
+		doc3 = Document.new("./test/small_gpl2.txt")
+		$logger.info("Plagtion") {"Document name: #{doc2.doc_name}"}
+		puts "== Search Overlaps =="
+		#overlap2 = doc.search_overlaps(doc3)
+		@overlaps << doc.search_overlaps(doc3) # list of overlap object
+		puts @overlaps.size
+		print "Do you want see the common region?(y/n): "
+		input = gets.chomp
+		if input == 'y'
+			print "\n-- Display Overlaps --\n"
+			display_overlaps()
+			print "\n---------------------\n\n"
+		else
+			puts "don't display common region" 
+		end
+		puts "=== Goodbye :) ==="
 	end # main
+	
+	def display_overlaps()
+		i = 1
+		j = 1
+		for item in @overlaps
+			if item != nil
+			print "\n*********************\n"
+			print "Document #{i} -> #{item.master_doc.object_id}\n"
+			puts "Total overlaps: #{item.num_overlaps}"
+			puts "Total common words: #{item.tot_words}"
+			item.overlaps.each do |x| 
+				puts "Overlap #{j} size -> #{x[0]}"
+				j += 1
+				end
+			i += 1
+			j = 0
+			end
+		end #for
+	end #display
 
 
 end #class

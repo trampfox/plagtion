@@ -37,11 +37,14 @@ class Overlap
 	end
 	
 	def num_overlaps()
-		#calcolare con index passati
+		return @overlap.size
 	end
 	
+	# total words in all common regions
 	def tot_words()
-		
+		tot_words = 0
+		@overlap.each {|overlap| tot_words += overlap[0]}
+		return tot_words
 	end	
 	
 	# size: size of common region
@@ -51,8 +54,8 @@ class Overlap
 	end #add
 	
 	def overlaps()
-		
+		return @overlap
 	end
 	
-end
+end #class
 

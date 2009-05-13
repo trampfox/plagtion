@@ -35,6 +35,8 @@ class Document
 	@text = ""
 
 	def initialize(url)
+		i = 0
+    j = @@bsize - 1
 		@doc_name = url
 		@content = Array.new(0) # Array of elements [w, pos]
     # integers indexes list (M elements). Each index points to the begin of the word block
@@ -43,8 +45,6 @@ class Document
 			init_expTable
 			$logger.info("Document") {"@@expTable initialized"}
 		end #if
-		i = 0
-    j = @@bsize - 1
 		if (url.kind_of?(URI::HTTP))
 			@content = parse(htmlfile2text(url))
 			file = File.new("./tmp/#{@@count}-#{@title[0,10]}", "w")
@@ -188,12 +188,10 @@ class MasterDocument < Document
 		
 		while i < (doc.content).length
 			wlist = doc.get_words(i, @@bsize) # wlist contains the block
-			return if (wlist.size < 5)
+			return overlap if (wlist.size < 5)
 			if (i == 0) || (flag == 0)
-				puts "-- blockhash --"
 				index = blockhash(wlist)
 			else
-				puts "-- blockhash bentley --"
 				index = blockhash_Bentley(wlist)
 			end #if
 			if (search_hashValue(index) == true)
@@ -201,21 +199,21 @@ class MasterDocument < Document
 					if (block_control(doc, wlist, @indexTable[index][y], i))
 						size = @extended_index["end_copy"] - @extended_index["start_copy"]
 						puts "!!== block of #{size} words found ==!!" 
-						puts ext_list = doc.get_words(@extended_index["start_copy"], size)
+						#puts ext_list = doc.get_words(@extended_index["start_copy"], size)
 						overlap.add(size, @extended_index) # add the overlap region that has just founded
 						i += size
 						flag = 0
 					else
-						puts "== block not found =="
-						puts wlist
+						#puts "== block not found =="
+						#puts wlist
 						i = i+1
 						flag = 1
 					end #if
 					
 				end #for
 			else
-				puts "== block not found =="
-				puts wlist
+				#puts "== block not found =="
+				#puts wlist
 				i += 1
 				flag = 1
 			end #if

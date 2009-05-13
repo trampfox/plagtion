@@ -24,18 +24,20 @@
 		
 =end
 
-	module Plagtion
+	module PlagtionMod
 	
-		NUM_OF_PAGES = 1
-		NUM_OF_SEARCHS = 2
-		P = 1211 # costant used for Bentley McIlroy algorithm
-		BSIZE = 5
-		$expTable = Array.new(0)
+		require 'rubygems'
+		require 'gscraper'
+		require 'document'
+		require 'overlap'
+		require 'net/http'
+		require 'hpricot'
+		require 'open-uri'
+		require 'url_manager'
+		require 'search_engine'
+		require 'lib/ysearch'
+		require 'modules/readers'
 		
-		def init_expTable()
-			for i in 0...BSIZE
-			$expTable << P**i
-			end
-		end
+		$logger.debug("PlagtionMod") {"Requires OK"}
 
 	end # module
