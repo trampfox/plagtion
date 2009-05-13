@@ -24,8 +24,8 @@
 class Document
 	attr_reader :content
 	
-	# size of word blocks used to build the hash table
-	@@bsize = 5
+	
+	@@bsize = 5 															# size of word blocks used to build the hash table
 	@@table_size = 209503
 	@@count = 0
 	@@expTable = []
@@ -38,16 +38,21 @@ class Document
 		i = 0
     j = @@bsize - 1
 		@doc_name = url
-		@content = Array.new(0) # Array of elements [w, pos]
-    # integers indexes list (M elements). Each index points to the begin of the word block
+		@content = Array.new(0)									 # Array of elements [w, pos]
+    # integers indexes list (M elements)
+    # Each index points to the begin of the word block
 		@indexTable = Array.new(@@table_size) {Array.new(0)}
 		if @@expTable == []
 			init_expTable
 			$logger.info("Document") {"@@expTable initialized"}
 		end #if
 		if (url.kind_of?(URI::HTTP))
-			@content = parse(htmlfile2text(url))
-			file = File.new("./tmp/#{@@count}-#{@title[0,10]}", "w")
+			if ((@text = Readers::get_text(url)) == "")
+				puts "Error while reading file. See the logfile for more information"
+				exit()
+			end #if
+			@content = parse(@text)
+			file = File.new("./tmp/#{@@count}-#{url[0,10]}", "w")
 			file.puts @content
 			file.close
 			@@count += 1
@@ -60,10 +65,6 @@ class Document
 				$logger.info("Document") {"#{url} read (local file)"}
 			end #if
 		end #if
-=begin
-			# calculate the hash of the input text block
-			
-=end
 	end #init
 	
 	def blockhash(a)
@@ -76,9 +77,9 @@ class Document
 		end
 		hasharray.each {|elem| sum = sum + elem}
 		@last_hashvalue = sum % @@table_size
-		@last_fbvalue = hasharray[0] # farlo solo se non master document
+		@last_fbvalue = hasharray[0] 						# farlo solo se non master document
 		#puts "last_fbvalue-> #{@last_fbvalue} last_hash-> #{@last_hashvalue}" 
-		return (sum % @@table_size) # return hash of block
+		return (sum % @@table_size) 						# return hash of block
 	end #blockhash
 	
 	# blockhash using the Bentley Ilroy algorithm
@@ -89,7 +90,7 @@ class Document
 		temp = ((@last_hashvalue - @last_fbvalue) * P)+(a[@@bsize-1].hash)
 		@last_hashvalue = temp % @@table_size
 		@last_fbvalue = (((a[0].hash) * @@expTable[@@bsize-1])) % @@table_size
-		return (temp % @@table_size) # return hash of block
+		return (temp % @@table_size) 						# return hash of block
 	end # blockhash_Bentley
 	
 	# return url used to create self 
@@ -111,7 +112,7 @@ class Document
 		for i in n...n+k
 			begin
 				wordlist << @content[i][0]+" "
-			rescue NoMethodError # if the last block is small then 5 words 
+			rescue NoMethodError								 # if the last block is small then 5 words 
 				return wordlist
 			end #rescue
 		end
@@ -141,11 +142,10 @@ class Document
 		word_def = /[[:alpha:]|àèéìòù]+/ # regex
 		s.scan(word_def) do |w| 
 			if w.size >= wlimit
-				wpos = $`.size          # starting position in s of w
-				# at page 319 of programming ruby 
-				remove_accent!(w)       # convert accented chars in place
-				w.downcase!             # convert case
-				wlist << [w, wpos]      # save in list
+				wpos = $`.size          			# starting position in s of w
+				remove_accent!(w)      				# convert accented chars in place
+				w.downcase!             			# convert case
+				wlist << [w, wpos]      			# save in list
 			end
 		end
 		wlist
@@ -163,47 +163,55 @@ class MasterDocument < Document
 	
 	def initialize(url)
 		super(url)
+		@resultList = [] # -> for test only. contains Document object
 		i = 0
-		# calculate the block hash and populate the indexTable
-		puts "=== blockHash (Document)==="
+		puts "=== blockHash (Document)===" 				# calculate the block hash and populate the indexTable
 			while i < @content.length-1 
 				wlist = get_words(i, @@bsize)
-				hashValue = blockhash(wlist)  # i is the index of the first word in @content
+				hashValue = blockhash(wlist)  				# i is the index of the first word in @content
 				@indexTable[hashValue] << i 
 				$logger.debug("MasterDocument") {"#{wlist} ---> index #{@content[i][1]} hashValue -> #{hashValue}"}
 				i = i+@@bsize
 			end # while
 		puts "=== end blockHash ==="
-=begin
-			puts "=== searching on #{NUM_OF_SEARCHS} random block ==="
-			google = GoogleCachedSearchEngine.new(self, @content, @@bsize)
-			resultUrl = google.search(NUM_OF_PAGES) # return an UrlManager obj 		
-=end
+		puts "=== searching on #{NUM_OF_SEARCHS} random block ==="
+		google = GoogleCachedSearchEngine.new(self, @content, @@bsize)
+		resultUrl = google.search(NUM_OF_PAGES) 	# return an UrlManager obj 		
+		$logger.debug("MasterDocument") {"#{resultUrl}"}
+		fetch_url(resultUrl)
 	end #init
 	
+	# search if there are a common region between self and doc (Document object)
+	# to find common region it uses the Bentley McIlroy's algorithm
+	# If one is founded method "block_control" is called
+	# doc: MasterDocument object
+	# return an Overlap object
 	def search_overlaps(doc)
-		flag = 0 # if zero call blockhash else call Bentley McIlroy algorithm
+		flag = 0																 # if zero call blockhash, else call Bentley McIlroy algorithm
 		i = 0
-		overlap = Overlap.new(self, doc)
+		# create new Overlap object that contains the information
+		# on the common region found in the copy document
+		overlap = Overlap.new(self, doc) 
 		
 		while i < (doc.content).length
-			wlist = doc.get_words(i, @@bsize) # wlist contains the block
+			wlist = doc.get_words(i, @@bsize)			# get a words block from MasterDocument and put it in wlist
 			return overlap if (wlist.size < 5)
 			if (i == 0) || (flag == 0)
-				index = blockhash(wlist)
+				index = blockhash(wlist) 
 			else
-				index = blockhash_Bentley(wlist)
+				index = blockhash_Bentley(wlist) 		# This method use Bentley McIlroy algorithm
 			end #if
 			if (search_hashValue(index) == true)
-				for y in 0...@indexTable[index].size
-					if (block_control(doc, wlist, @indexTable[index][y], i))
-						size = @extended_index["end_copy"] - @extended_index["start_copy"]
+				# search for possible hash collision (using block_control) 
+				for y in 0...@indexTable[index].size 
+					if (block_control(doc, wlist, @indexTable[index][y], i)) 								# true if find a copied block 
+						size = @extended_index["end_copy"] - @extended_index["start_copy"]		# size of common block found
 						puts "!!== block of #{size} words found ==!!" 
-						#puts ext_list = doc.get_words(@extended_index["start_copy"], size)
-						overlap.add(size, @extended_index) # add the overlap region that has just founded
+						overlap.add(size, @extended_index) 																		# add the overlap region that has just founded
 						i += size
 						flag = 0
 					else
+						# continue the search  
 						#puts "== block not found =="
 						#puts wlist
 						i = i+1
@@ -222,24 +230,27 @@ class MasterDocument < Document
 		return overlap
 	end #search_overlaps 
 
+	private # private method
+	
 	# control if the founded block hash is the same block 
 	# return the size of the founded string
 	# index_first: index of the first word block in @content
 	# index_second: index of the first word block in doc.content
 	def block_control(doc, wlist, index_first, index_second)
-			wlist_master = get_words(index_first, @@bsize) # wlist contains the block
+			wlist_master = get_words(index_first, @@bsize) 			# wlist contains the block
 			if (wlist_master == wlist)
 				extend_block(doc, wlist_master,index_first, index_second)
 				return true
 			end #if
-			return false # if the founded block it's not the same return false (collision)
+			return false 																				# if the founded block it's not the same return false (collision)
 	end
 	
+	# Right and left block extension
+	# Used to find block that are larger than @@bsize words
 	# i: index in @content
 	# j: index in @content_2ndfile
-	# usare slo gli indici
 	def extend_block(doc, wlist_master, i, j)
-		@extended_index = {} # hash with key "start_master", "start_copy", "end_master" and "end_copy"
+		@extended_index = {} 		# hash with key "start_master", "start_copy", "end_master" and "end_copy"
 		extension_i = i-1
 		extension_j = j-1
 		# left extension
@@ -260,20 +271,46 @@ class MasterDocument < Document
 		end #while
 		@extended_index["end_master"] = extension_i
 		@extended_index["end_copy"] = extension_j
+		# debug puts
 		if extension_i > i+@@bsize || @extended_index["start_master"] < i
 			puts "< extension done >"
 		end
 	end # extend_block
 	
+	# return true if @indexTable contains value
+	# value: hash of a block of the MasterDocument
 	def search_hashValue(value)
 		return @indexTable[value][0] != nil
 	end #search hash value
+	
+	# Fetchs URL in the list urlList
+	def fetch_url(urlList)
+		while ((url = urlList.get_next) != nil)
+			@resultList << Document.new(url)
+		end
+		$logger.debug("MasterDocument") {"resultList complete"}
+	end
 end #class
 
 
-=begin
 
-Metodi da fare:
-- Ricerca similarità tra testo in input e obj ResultPage
 
-=end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

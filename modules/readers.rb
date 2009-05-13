@@ -19,7 +19,7 @@ require 'logger'
 
 
 # create a log file and store it in a global variable 
-$logger = Logger.new('log/logfile.log')
+$logger = Logger.new('log/logfile.log', 'daily')
 
 
 module Readers
@@ -28,20 +28,24 @@ module Readers
   end
 
   def Readers.get_text(path)
-    begin
-      ext = File.extname(path).downcase
-      case ext
-      when  /\.html?$/: html_reader(path)
-      when ".pdf": pdf_reader(path)
-      when ".doc": word_reader(path)
-      when ".txt": text_reader(path)
-      else unknown_type_reader(path)
-      end 
-    rescue Readers::ReaderError => msg
-      # send message to log file
-      $logger.error(msg)
-      return ""  
-    end
+  	if (path =~ /^http:\/\/.*$/) != nil
+  		html_reader(path)
+  	else
+	    begin
+	      ext = File.extname(path).downcase
+	      case ext
+	      #when /^http:\/\/.*$/: html_reader(path)
+	      when ".pdf": pdf_reader(path)
+	      when ".doc": word_reader(path)
+	      when ".txt": text_reader(path)
+	      else unknown_type_reader(path)
+	      end 
+	    rescue Readers::ReaderError => msg
+	      # send message to log file
+	      $logger.error(msg)
+	      return ""  
+	    end
+	   end # if
   end
 
 
@@ -88,7 +92,8 @@ module Readers
       s = IO.read(path)
       s = Iconv.conv('utf-8','iso-8859-1',s) if s.isutf8
       return s
-    rescue StandardError
+    rescue StandardError => msg
+    	$logger.error("Readers::text_reader") {msg}
       raise ReaderError, "Failed converting text file: #{path}"
     end
   end
@@ -98,16 +103,17 @@ module Readers
   def Readers.html_reader(path)
     begin
       doc = Hpricot(open(path))
-      text =html2text(doc)
+      text = html2text(doc)
       text.gsub!(/\n\s+\n/, "\n\n") # remove groups of empty lines
       return text
-    rescue StandardError
+    rescue StandardError => msg
+    	$logger.error("Readers::html_reader") {msg}
       raise ReaderError, "Failed converting html file: #{path}"
     end
   end
 
   def Readers.html2text(a)
-    if(a.respond_to? :children)
+    if(a.respond_to? :children) && (a.children != nil)
       a.children.map { |x| html2text(x) }.join
     elsif a.text?
       s = a.to_html  # needed to preserve entities

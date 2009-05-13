@@ -35,14 +35,13 @@ class SearchEngine
 	end #init
 
 	def search(num_of_pages)
-		randomBlock = []
+		randomIndex = []
 		NUM_OF_SEARCHS.times do  # take random indexes from wlist
-			randomBlock << rand(@wlist.length)
+			randomIndex << rand(@wlist.length)
 		end
-		for index in randomBlock
+		for index in randomIndex
 			@searchString << @doc_ref.get_words(index, @bsize)
 		end #for
-		$logger.info("GoogleSearchEngine") {"searchString -> #{@searchString}"}
 	end
 	
 end #class

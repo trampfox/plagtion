@@ -26,27 +26,46 @@ class UrlManager
 		@urlList = [] # list of URL found by searching 
 	end #init
 	
+	# add the urls that are in the list lis
+	# the urls are URI::HTTP object
 	def add_urls(lis)
 		begin
 			for url in lis
-				if !@urlList.include?(url)
-					@urlList << url
-					$logger.info "#{url} added"
+				if !@urlList.include?(url) # add the url only if isn't already in the list
+					@urlList << "http://"+url.host+url.path+"?"+url.query
+					$logger.info "http://#{url.host+url.path}?#{url.query} added"
 				else
 					$logger.info "#{url} is already present in the list"
 				end #if
 			end #for
 		rescue NoMethodError  # first run, urlList = nil
-			@urlList[0] = url
-			$logger.info "#{url} added"
+			@urlList[0] = "http"+url.host+url.path+"?"+url.query
+			$logger.info "http://#{url.host+url.path}?#{url.query} added"
 		end #rescue
 	end #add_urls
  	
+ 	# get the next url to fetch from the list @urlList
 	def get_next()
-		last = @urlList.size-1 # last item index
-		item = @urlList.fetch(last) # last item
-		@urlList.delete_at(last) # deleting last item
-		return item
+		last = @urlList.size-1 # get last item index
+		if last >= 0
+			item = @urlList.fetch(last) # get last item
+			@urlList.delete_at(last) # deleting last item
+			return item 
+		else
+			return nil
+		end #if
 	end #get_next
+
+=begin
+	# used only for test
+	# not used in the final program
+	def to_s
+		s = ""
+		for url in @urlList
+			s << url.query+"\n"
+		end
+		return s
+	end
+=end
 	
-end
+end # class 

@@ -31,7 +31,7 @@ BSIZE = 5
 =end
 	P = 1211 # costant used for Bentley McIlroy algorithm
 	NUM_OF_PAGES = 1
-	NUM_OF_SEARCHS = 2
+	NUM_OF_SEARCHS = 1
 
 class Plagtion
 	
