@@ -18,7 +18,11 @@
 #    Free Software Foundation, Inc.,                                       #
 #    59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             #
 ############################################################################
+=begin
+TO DO: vedere cosa ritornare. Se non trovo OVerlaps è inutile ritornare unoggetto. TOrnare nil e fare controllo
+			Da fare nelfile document.rb
 
+=end
 
 class Overlap
 	

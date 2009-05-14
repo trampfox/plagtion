@@ -52,12 +52,14 @@ class Document
 		else
 			@content = parse(@text)
 			$logger.info("Document") {"#{url} read"}
+=begin
 			if !(self.kind_of?(MasterDocument))				# save a temp file only if it is not an instance of MAsterDocument)
-				file = File.new("tmp/#{@@count}-#{self.object_id.abs}", "w")
+				file = File.new()
 				file.puts @text
 				file.close
 				@@count += 1
 			end #if
+=end
 		end #if
 	end #init
 	
@@ -172,7 +174,7 @@ class MasterDocument < Document
 		google = GoogleCachedSearchEngine.new(self, @content, @@bsize)
 		resultUrl = google.search(NUM_OF_PAGES) 	# return an UrlManager obj 		
 		$logger.debug("MasterDocument") {"#{resultUrl}"}
-		fetch_url(resultUrl)
+		fetch_url(self, resultUrl)
 	end #init
 	
 	# search if there are a common region between self and doc (Document object)
@@ -278,11 +280,28 @@ class MasterDocument < Document
 	end #search hash value
 	
 	# Fetchs URL in the list urlList
-	def fetch_url(urlList)
+	# urlList: contains all the urls find by Google
+	# master: MasterDocument pointer
+	def fetch_url(master, urlList)
+		@overlaps = [] 										# Array that contains all the overlaps founded
+		puts "==== Create Document objects from url ===="
 		while ((url = urlList.get_next) != nil)
-			@resultList << Document.new(url)
-		end
+			@@count += 1
+			copy = File.new("./tmp/#{@@count}.html", "w")
+			open(url) do |f|
+				f.each_byte {|c| copy.putc(c)}
+			end # do
+			@resultList << Document.new("./tmp/#{@@count}.html")
+		end #while
+		puts "==== Create Document objects from url OK ===="
 		$logger.debug("MasterDocument#fetch_url") {"ResultList complete. Array size: #{@resultList.size}"}
+		
+		puts "==== Searching overlaps ===="
+		for doc in @resultList						# Searchs if there are common region fo revery Document object created
+			@overlaps << master.search_overlaps(doc)
+		end #for
+		
+		$logger.debug("MasterDocument#fetch_url") {"@Overlaps size: #{@overlaps.size}"}
 =begin
 		# test Document object
 		name = []
@@ -290,28 +309,7 @@ class MasterDocument < Document
 			name << doc.doc_name+" "
 		end
 		$logger.debug("MasterDocument#fetch_url") {name}
-	end
 =end
+	end
 end #class
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
