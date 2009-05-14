@@ -56,16 +56,5 @@ class UrlManager
 		end #if
 	end #get_next
 
-=begin
-	# used only for test
-	# not used in the final program
-	def to_s
-		s = ""
-		for url in @urlList
-			s << url.query+"\n"
-		end
-		return s
-	end
-=end
 	
 end # class 

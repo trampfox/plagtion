@@ -46,23 +46,17 @@ class Document
 			init_expTable
 			$logger.info("Document") {"@@expTable initialized"}
 		end #if
-		if (url.kind_of?(URI::HTTP))
-			if ((@text = Readers::get_text(url)) == "")
-				puts "Error while reading file. See the logfile for more information"
-				exit()
-			end #if
+		if ((@text = Readers::get_text(url)) == "")
+			puts "Error while reading file. See the logfile for more information"
+			exit()
+		else
 			@content = parse(@text)
-			file = File.new("./tmp/#{@@count}-#{url[0,10]}", "w")
-			file.puts @content
-			file.close
-			@@count += 1
-		else # local files
-			if ((@text = Readers::get_text(url)) == "")
-				puts "Error while reading file. See the logfile for more information"
-				exit()
-			else
-				@content = parse(@text)
-				$logger.info("Document") {"#{url} read (local file)"}
+			$logger.info("Document") {"#{url} read"}
+			if !(self.kind_of?(MasterDocument))				# save a temp file only if it is not an instance of MAsterDocument)
+				file = File.new("tmp/#{@@count}-#{self.object_id.abs}", "w")
+				file.puts @text
+				file.close
+				@@count += 1
 			end #if
 		end #if
 	end #init
@@ -288,10 +282,17 @@ class MasterDocument < Document
 		while ((url = urlList.get_next) != nil)
 			@resultList << Document.new(url)
 		end
-		$logger.debug("MasterDocument") {"resultList complete"}
+		$logger.debug("MasterDocument#fetch_url") {"ResultList complete. Array size: #{@resultList.size}"}
+=begin
+		# test Document object
+		name = []
+		for doc in @resultList
+			name << doc.doc_name+" "
+		end
+		$logger.debug("MasterDocument#fetch_url") {name}
 	end
+=end
 end #class
-
 
 
 

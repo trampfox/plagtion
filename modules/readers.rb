@@ -34,7 +34,7 @@ module Readers
 	    begin
 	      ext = File.extname(path).downcase
 	      case ext
-	      #when /^http:\/\/.*$/: html_reader(path)
+	      when /\.html?$/: html_reader(path)
 	      when ".pdf": pdf_reader(path)
 	      when ".doc": word_reader(path)
 	      when ".txt": text_reader(path)
@@ -138,6 +138,7 @@ module Readers
   end
 
 end
+
 
 
 
