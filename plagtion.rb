@@ -36,7 +36,7 @@ BSIZE = 5
 class Plagtion
 	
 	def main()
-		@overlaps = [] # List of Overlap object
+		overlaps = [] # List of Overlap object
 		$logger.debug "PID: #{$$}" # process number
 		puts "== Create MasterDocument =="
 		doc = MasterDocument.new("./test/gpl.txt")	# input document
@@ -49,30 +49,32 @@ class Plagtion
 		$logger.info("Plagtion") {"Document name: #{doc2.doc_name}"}
 		puts "== Search Overlaps =="
 		#overlap = doc.search_overlaps(doc2)
-		@overlaps << doc.search_overlaps(doc2) # list of overlap object
+		overlaps << doc.search_overlaps(doc2) # list of overlap object
 		"== Create Copy Document 2 =="
 		doc3 = Document.new("./test/small_gpl2.txt")
 		$logger.info("Plagtion") {"Document name: #{doc2.doc_name}"}
-		puts "== Search Overlaps =="
+		puts "== Search Overlaps (local files)=="
 		#overlap2 = doc.search_overlaps(doc3)
-		@overlaps << doc.search_overlaps(doc3) # list of overlap object
-		puts @overlaps.size
+		overlaps << doc.search_overlaps(doc3) # list of overlap object
+		puts overlaps.size
 		print "Do you want see the common region?(y/n): "
 		input = gets.chomp
 		if input == 'y'
-			print "\n-- Display Overlaps --\n"
-			display_overlaps()
+			print "\n-- Display Overlaps (local file)--\n"
+			display_overlaps(overlaps)
 			print "\n---------------------\n\n"
 		else
 			puts "don't display common region" 
 		end
-		puts "=== Goodbye :) ==="
+		print "\n\n=== Goodbye :) ===\n\n"
 	end # main
 	
-	def display_overlaps()
+	# display the common region founded
+	# overlaps: list of Document object
+	def Plagtion.display_overlaps(overlaps)
 		i = 1
 		j = 1
-		for item in @overlaps
+		for item in overlaps
 			if item != nil
 			print "\n*********************\n"
 			print "Document #{i} -> #{item.master_doc.object_id}\n"
