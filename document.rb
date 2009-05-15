@@ -169,7 +169,6 @@ class MasterDocument < Document
 				$logger.debug("MasterDocument") {"#{wlist} ---> index #{@content[i][1]} hashValue -> #{hashValue}"}
 				i = i+@@bsize
 			end # while
-		puts "=== end blockHash ==="
 		puts "=== searching on #{NUM_OF_SEARCHS} random block ==="
 		google = GoogleCachedSearchEngine.new(self, @content, @@bsize)
 		resultUrl = google.search(NUM_OF_PAGES) 	# return an UrlManager obj 		
@@ -179,7 +178,7 @@ class MasterDocument < Document
 	
 	# search if there are a common region between self and doc (Document object)
 	# to find common region it uses the Bentley McIlroy's algorithm
-	# If one is founded method "block_control" is called
+	# If one is found method "block_control" is called
 	# doc: MasterDocument object
 	# return an Overlap object
 	def search_overlaps(doc)
@@ -191,7 +190,15 @@ class MasterDocument < Document
 		
 		while i < (doc.content).length
 			wlist = doc.get_words(i, @@bsize)			# get a words block from MasterDocument and put it in wlist
-			return overlap if (wlist.size < 5)
+			
+			if (wlist.size < 5)										# last block may be smaller then 5 words
+				if (overlap.num_overlaps > 0)
+					return overlap
+				else
+					return nil
+				end #if
+			end #if
+			
 			if (i == 0) || (flag == 0)
 				index = blockhash(wlist) 
 			else
@@ -203,7 +210,7 @@ class MasterDocument < Document
 					if (block_control(doc, wlist, @indexTable[index][y], i)) 								# true if find a copied block 
 						size = @extended_index["end_copy"] - @extended_index["start_copy"]		# size of common block found
 						puts "!!== block of #{size} words found ==!!" 
-						overlap.add(size, @extended_index) 																		# add the overlap region that has just founded
+						overlap.add(size, @extended_index) 																		# add the overlap region that has just found
 						i += size
 						flag = 0
 					else
@@ -223,13 +230,17 @@ class MasterDocument < Document
 			end #if
 			
 		end #while
-		return overlap
+		if (overlap.num_overlaps > 0)
+			return overlap
+		else
+			return nil
+		end #if
 	end #search_overlaps 
 
 	private # private method
 	
-	# control if the founded block hash is the same block 
-	# return the size of the founded string
+	# control if the found block hash is the same block 
+	# return the size of the found string
 	# index_first: index of the first word block in @content
 	# index_second: index of the first word block in doc.content
 	def block_control(doc, wlist, index_first, index_second)
@@ -238,7 +249,7 @@ class MasterDocument < Document
 				extend_block(doc, wlist_master,index_first, index_second)
 				return true
 			end #if
-			return false 																				# if the founded block it's not the same return false (collision)
+			return false 																				# if the found block it's not the same return false (collision)
 	end
 	
 	# Right and left block extension
@@ -283,7 +294,7 @@ class MasterDocument < Document
 	# urlList: contains all the urls find by Google
 	# master: MasterDocument pointer
 	def fetch_url(master, urlList)
-		@overlaps = [] 										# Array that contains all the overlaps founded
+		@overlaps = [] 										# Array that contains all the overlaps found
 		puts "==== Create Document objects from url ===="
 		while ((url = urlList.get_next) != nil)
 =begin
@@ -307,14 +318,7 @@ class MasterDocument < Document
 		Plagtion.display_overlaps(@overlaps)
 		print "\n"
 		$logger.debug("MasterDocument#fetch_url") {"@Overlaps size: #{@overlaps.size}"}
-=begin
-		# test Document object
-		name = []
-		for doc in @resultList
-			name << doc.doc_name+" "
-		end
-		$logger.debug("MasterDocument#fetch_url") {name}
-=end
 	end
+	
 end #class
 
