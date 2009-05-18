@@ -47,7 +47,7 @@ class Plagtion
 		"== Create Copy Document =="
 		doc2 = Document.new("./test/small_gpl.txt")
 		$logger.info("Plagtion") {"Document name: #{doc2.doc_name}"}
-		puts "== Search Overlaps =="
+		puts "== Search Overlaps (local file)=="
 		overlap = doc.search_overlaps(doc2)
 		if overlap != nil
 			overlaps << overlap
@@ -55,7 +55,7 @@ class Plagtion
 		"== Create Copy Document 2 =="
 		doc3 = Document.new("./test/small_gpl2.txt")
 		$logger.info("Plagtion") {"Document name: #{doc2.doc_name}"}
-		puts "== Search Overlaps (local files)=="
+		puts "== Search Overlaps (local file)=="
 		overlap2 = doc.search_overlaps(doc3)
 		if overlap2 != nil
 			overlaps << overlap2
@@ -65,7 +65,7 @@ class Plagtion
 		input = gets.chomp
 		if input == 'y'
 			print "\n-- Display Overlaps (local file)--\n"
-			display_overlaps(overlaps)
+			Plagtion.display_overlaps(overlaps)
 			print "\n---------------------\n\n"
 		else
 			puts "don't display common region" 
@@ -82,7 +82,10 @@ class Plagtion
 			for item in overlaps
 				if item != nil
 				print "\n*********************\n"
-				print "Document #{i} -> #{item.master_doc.object_id}\n"
+				print "MasterDocument ID -> #{item.master_doc.object_id}\n"
+				print "MasterDocument name -> #{item.master_doc.doc_name}\n"
+				print "CopyDoc ID -> #{item.copy_doc.doc_name}\n"
+				print "CopyDoc ID -> #{item.copy_doc.object_id}\n\n"
 				puts "Total overlaps: #{item.num_overlaps}"
 				puts "Total common words: #{item.tot_words}"
 				item.overlaps.each do |x| 

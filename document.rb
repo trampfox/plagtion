@@ -297,22 +297,17 @@ class MasterDocument < Document
 		@overlaps = [] 										# Array that contains all the overlaps found
 		puts "==== Create Document objects from url ===="
 		while ((url = urlList.get_next) != nil)
-=begin
-			@@count += 1
-			copy = File.new("./tmp/#{@@count}.html", "w")
-			open(url) do |f|
-				f.each_char {|c| copy.putc(c)}
-			end # do
-			@resultList << Document.new("./tmp/#{@@count}.html")
-=end
 			@resultList << Document.new(url)
 		end #while
 		puts "==== Create Document objects from url OK ===="
 		$logger.debug("MasterDocument#fetch_url") {"ResultList complete. Array size: #{@resultList.size}"}
 		
 		puts "==== Searching overlaps (fetch_url)===="
-		for doc in @resultList						# Searchs if there are common region fo revery Document object created
-			@overlaps << master.search_overlaps(doc)
+		for doc in @resultList									# Searchs if there are common region fo revery Document object created
+			overlap = master.search_overlaps(doc)	# if ovelap = nil no overlaps were found
+			if overlap != nil
+				@overlaps << overlap
+			end #if
 		end #for
 		print "\n==== Diplay overlaps (fetch_url)====\n"
 		Plagtion.display_overlaps(@overlaps)
@@ -322,3 +317,12 @@ class MasterDocument < Document
 	
 end #class
 
+=begin
+			# at line 300
+			@@count += 1
+			copy = File.new("./tmp/#{@@count}.html", "w")
+			open(url) do |f|
+				f.each_char {|c| copy.putc(c)}
+			end # do
+			@resultList << Document.new("./tmp/#{@@count}.html")
+=end
