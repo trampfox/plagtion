@@ -163,9 +163,16 @@ class MasterDocument < Document
 				$logger.debug("MasterDocument") {"#{wlist} ---> index #{@content[i][1]} hashValue -> #{hashValue}"}
 				i = i+@@bsize
 			end # while
-		puts "=== searching on #{NUM_OF_SEARCHS} random block ==="
+		# search with Google search engine on a cached page database
+=begin
+		puts "=== searching on #{NUM_OF_SEARCHS} random block (Google cached)==="
 		google = GoogleCachedSearchEngine.new(self, @content, @@bsize)
-		resultUrl = google.search(NUM_OF_PAGES) 	# return an UrlManager obj 		
+		resultUrl = google.search(NUM_OF_PAGES) 	# return an UrlManager obj 
+=end		
+		# search with Google search engine
+		puts "=== searching on #{NUM_OF_SEARCHS} random block (Google cached)==="
+		google = GoogleSearchEngine.new(self, @content, @@bsize)
+		resultUrl = google.search(NUM_OF_PAGES) 	# return an UrlManager obj 
 		$logger.debug("MasterDocument") {"#{resultUrl}"}
 		fetch_url(self, resultUrl, google)
 	end #init
@@ -288,26 +295,25 @@ class MasterDocument < Document
 	# urlList: contains all the urls find by Google
 	# master: MasterDocument pointer
 	def fetch_url(master, urlList, search_engine)
-		@overlaps = [] 										# Array that contains all the overlaps found
+		@overlaps = [] 																						# Array that contains all the overlaps found
 		puts "==== Create Document objects from url ===="
 		while ((url = urlList.get_next) != nil)
-			if search_engine.kind_of?(GoogleCachedSearchEngine)
-				puts url
+			
+			if search_engine.kind_of?(GoogleCachedSearchEngine)		# search on cached pages
 				filename = "tmp/#{@@count}.html"
-				open(filename,"w").write(open(url).read)
+				open(filename,"w").write(open(url).read)						# save temp local file
 				@resultList << Document.new(url, filename)
-				puts filename
+			elsif search_engine.kind_of?(GoogleSearchEngine)			# search on normal pages
+				if (extension = get_ext(url)) == -1 								# get the extension of file
+					next 																							# ignoring the file (unknown extension)
+				else 
+					filename = "tmp/#{@@count}."+extension
+					open(filename,"w").write(open(url).read)					# save temp local file
+					@resultList << Document.new(url, filename)
+					$logger.debug("MasterDocument#fetch_url") {"#{url} -> extension: #{extension}"}
+				end #if
 			end #if
-=begin
-			if url.include?("q=cache")
-				puts url
-				urlName = (url[/:\.:/])[/\w+/] # extract google cache code
-				filename = "./tmp/#{@@count} - #{urlName}.html"
-				puts filename
-			end
-=end
-			#open(filename,"w").write(open("http://www.repubblica.it").read)
-			#@resultList << Document.new(url)
+			
 		end #while
 		puts "==== Create Document objects from url OK ===="
 		$logger.debug("MasterDocument#fetch_url") {"ResultList complete. Array size: #{@resultList.size}"}
@@ -327,12 +333,27 @@ class MasterDocument < Document
 	
 end #class
 
-=begin
-			# at line 300
-			@@count += 1
-			copy = File.new("./tmp/#{@@count}.html", "w")
-			open(url) do |f|
-				f.each_char {|c| copy.putc(c)}
-			end # do
-			@resultList << Document.new("./tmp/#{@@count}.html")
-=end
+# simple method to get the extension of file pointed by passed url
+	def get_ext(url)
+		if url.include?(".html")
+			return "html"
+		elsif url.include?(".htm")
+			return "html"
+		elsif url.include?(".xhtml")
+			return "html"
+		elsif url.include?(".shtml")
+			return "html"
+		elsif url.include?(".php")
+			return "php"
+		elsif url.include?(".asp")
+			return "asp"
+		elsif url.include?(".pdf")
+			return "pdf"
+		elsif url.include?(".doc")
+			return "doc"
+		elsif url.include?(".txt")
+			return "txt"
+		else
+			return -1
+		end #if
+	end #get_ext

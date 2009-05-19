@@ -39,7 +39,7 @@ class Plagtion
 		overlaps = [] # List of Overlap object
 		$logger.debug "PID: #{$$}" # process number
 		puts "== Create MasterDocument =="
-		doc = MasterDocument.new("./test/gpl.txt")	# input document
+		doc = MasterDocument.new("gpl.txt")	# input document
 		$logger.info("Plagtion") {"Master Document name: #{doc.doc_name}"}
 		
 		# create 2 Document obj for testing the methods

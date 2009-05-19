@@ -32,7 +32,14 @@ class UrlManager
 		begin
 			for url in lis
 				if !@urlList.include?(url) # add the url only if isn't already in the list
-					@urlList << "http://"+url.host+url.path+"?"+url.query
+					# sometimes the url doesn't contain the query part (it must be escluded if nil)
+					puts url
+					#puts "url.host: #{url.host} url.path: #{url.path} url.query: #{url.query}"
+					completeUrl = "http://"+url.host+url.path
+					if url.query != nil
+						completeUrl += "?"+url.query
+					end
+					@urlList << completeUrl
 					$logger.info "http://#{url.host+url.path}?#{url.query} added"
 				else
 					$logger.info "#{url} is already present in the list"

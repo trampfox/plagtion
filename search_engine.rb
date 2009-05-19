@@ -64,6 +64,7 @@ class GoogleSearchEngine < SearchEngine
 				end #for
 			end # for
 			@urlManager.add_urls(@tmpList)
+			return @urlManager 								# return list of result page urls
 		end #search
 		
 end #class

@@ -35,6 +35,8 @@ module Readers
 	      ext = File.extname(path).downcase
 	      case ext
 	      when /\.html?$/: html_reader(path)
+	      when /\.php?$/: html_reader(path)
+	      when /\.asp?$/: html_reader(path)
 	      when ".pdf": pdf_reader(path)
 	      when ".doc": word_reader(path)
 	      when ".txt": text_reader(path)
