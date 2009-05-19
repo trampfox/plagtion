@@ -45,7 +45,7 @@ class Plagtion
 		# create 2 Document obj for testing the methods
 		
 		"== Create Copy Document =="
-		doc2 = Document.new("./test/small_gpl.txt")
+		doc2 = Document.new("./test/small_gpl.txt", "./test/small_gpl.txt")
 		$logger.info("Plagtion") {"Document name: #{doc2.doc_name}"}
 		puts "== Search Overlaps (local file)=="
 		overlap = doc.search_overlaps(doc2)
@@ -53,7 +53,7 @@ class Plagtion
 			overlaps << overlap
 		end
 		"== Create Copy Document 2 =="
-		doc3 = Document.new("./test/small_gpl2.txt")
+		doc3 = Document.new("./test/small_gpl2.txt", "./test/small_gpl2.txt")
 		$logger.info("Plagtion") {"Document name: #{doc2.doc_name}"}
 		puts "== Search Overlaps (local file)=="
 		overlap2 = doc.search_overlaps(doc3)

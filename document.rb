@@ -34,11 +34,13 @@ class Document
 	@doc_name = ""
 	@text = ""
 
-	def initialize(url)
+	def initialize(url, filename)
 		i = 0
     j = @@bsize - 1
 		@doc_name = url
-		@content = Array.new(0)									 # Array of elements [w, pos]
+		@filename = filename
+		@content = Array.new(0)	
+		@@count += 1								 # Array of elements [w, pos]
     # integers indexes list (M elements)
     # Each index points to the begin of the word block
 		@indexTable = Array.new(@@table_size) {Array.new(0)}
@@ -52,14 +54,6 @@ class Document
 		else
 			@content = parse(@text)
 			$logger.info("Document") {"#{url} read"}
-=begin
-			if !(self.kind_of?(MasterDocument))				# save a temp file only if it is not an instance of MAsterDocument)
-				file = File.new()
-				file.puts @text
-				file.close
-				@@count += 1
-			end #if
-=end
 		end #if
 	end #init
 	
@@ -158,7 +152,7 @@ end # class
 class MasterDocument < Document
 	
 	def initialize(url)
-		super(url)
+		super(url, url)
 		@resultList = [] # -> for test only. contains Document object
 		i = 0
 		puts "=== blockHash (Document)===" 				# calculate the block hash and populate the indexTable
@@ -173,7 +167,7 @@ class MasterDocument < Document
 		google = GoogleCachedSearchEngine.new(self, @content, @@bsize)
 		resultUrl = google.search(NUM_OF_PAGES) 	# return an UrlManager obj 		
 		$logger.debug("MasterDocument") {"#{resultUrl}"}
-		fetch_url(self, resultUrl)
+		fetch_url(self, resultUrl, google)
 	end #init
 	
 	# search if there are a common region between self and doc (Document object)
@@ -293,11 +287,27 @@ class MasterDocument < Document
 	# Fetchs URL in the list urlList
 	# urlList: contains all the urls find by Google
 	# master: MasterDocument pointer
-	def fetch_url(master, urlList)
+	def fetch_url(master, urlList, search_engine)
 		@overlaps = [] 										# Array that contains all the overlaps found
 		puts "==== Create Document objects from url ===="
 		while ((url = urlList.get_next) != nil)
-			@resultList << Document.new(url)
+			if search_engine.kind_of?(GoogleCachedSearchEngine)
+				puts url
+				filename = "tmp/#{@@count}.html"
+				open(filename,"w").write(open(url).read)
+				@resultList << Document.new(url, filename)
+				puts filename
+			end #if
+=begin
+			if url.include?("q=cache")
+				puts url
+				urlName = (url[/:\.:/])[/\w+/] # extract google cache code
+				filename = "./tmp/#{@@count} - #{urlName}.html"
+				puts filename
+			end
+=end
+			#open(filename,"w").write(open("http://www.repubblica.it").read)
+			#@resultList << Document.new(url)
 		end #while
 		puts "==== Create Document objects from url OK ===="
 		$logger.debug("MasterDocument#fetch_url") {"ResultList complete. Array size: #{@resultList.size}"}
