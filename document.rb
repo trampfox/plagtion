@@ -272,6 +272,9 @@ class MasterDocument < Document
 		# right extension
 		extension_i = i+@@bsize
 		extension_j = j+@@bsize
+		#
+		# Da controllare se va oltre il numero massimo già in questo punto
+		#
 		while (@content[extension_i][0] == doc.content[extension_j][0])
 			extension_i += 1
 			extension_j += 1
@@ -299,18 +302,24 @@ class MasterDocument < Document
 		puts "==== Create Document objects from url ===="
 		while ((url = urlList.get_next) != nil)
 			
-			if search_engine.kind_of?(GoogleCachedSearchEngine)		# search on cached pages
+			if search_engine.kind_of?(GoogleCachedSearchEngine)			# search on cached pages
 				filename = "tmp/#{@@count}.html"
-				open(filename,"w").write(open(url).read)						# save temp local file
+				open(filename,"w").write(open(url).read)							# save temp local file
 				@resultList << Document.new(url, filename)
-			elsif search_engine.kind_of?(GoogleSearchEngine)			# search on normal pages
-				if (extension = get_ext(url)) == -1 								# get the extension of file
-					next 																							# ignoring the file (unknown extension)
+			elsif search_engine.kind_of?(GoogleSearchEngine)				# search on normal pages
+				if (extension = get_ext(url)) == -1 									# get the extension of file
+					next 																								# ignoring the file (unknown extension)
 				else 
 					filename = "tmp/#{@@count}."+extension
-					open(filename,"w").write(open(url).read)					# save temp local file
+					begin
+						open(filename,"w").write(open(url).read)					# save temp local file
+					rescue StandardError => msg
+						$logger.error("MasterDocument#fetch_url") {"#{msg}"}
+					end #exception				
 					@resultList << Document.new(url, filename)
-					$logger.debug("MasterDocument#fetch_url") {"#{url} -> extension: #{extension}"}
+					puts "==== Document Object from #{url} created ===="
+					# write the error on a log file and continue the execution of program
+					$logger.debug("MasterDocument#fetch_url") {"#{url} -> extension: #{extension}"} 
 				end #if
 			end #if
 			
@@ -318,8 +327,8 @@ class MasterDocument < Document
 		puts "==== Create Document objects from url OK ===="
 		$logger.debug("MasterDocument#fetch_url") {"ResultList complete. Array size: #{@resultList.size}"}
 		
-		puts "==== Searching overlaps (fetch_url)===="
 		for doc in @resultList									# Searchs if there are common region fo revery Document object created
+			puts "==== Searching overlaps on #{doc.doc_name}===="
 			overlap = master.search_overlaps(doc)	# if ovelap = nil no overlaps were found
 			if overlap != nil
 				@overlaps << overlap
