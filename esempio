@@ -1,0 +1,151 @@
+trampfox@bart:~/Projects/plagtion$ ./plagtion.rb 
+== Create MasterDocument ==
+=== blockHash (Document)===
+=== searching on 1 random block (Google cached)===
+http://en.wikipedia.org/wiki/Revision_control
+http://gpl-violations.org/faq/sourcecode-faq.html
+http://des.codeplex.com/SourceControl/ListDownloadableCommits.aspx
+http://www.debian.org/CD/vendors/legal
+http://www.marlow.dk/tech/src/dtm1184_linux_doc.html
+http://www.jahia.org/cms/home/download/svn
+http://www.gnu.org/licenses/gpl-faq.html
+http://www.distributed.net/source/
+http://books.google.com/books?pg=PT11&dq=the++corresponding++source++code++distributed&sa=X&ots=79S1GG8XFv&lpg=PT11&oi=book_result&ei=ogQUSsbMHsiB_AbI6ryyDw&hl=en&id=QuluB-uwHkEC&ct=result&sig=Jd4KaliUDbLIiNIo4JSwjYJjdJc&source=bl&resnum=9
+http://www.codeproject.com/KB/recipes/Distributed_Caching.aspx
+==== Create Document objects from url ====
+==== Document Object from http://www.codeproject.com/KB/recipes/Distributed_Caching.aspx created ====
+==== Document Object from http://www.gnu.org/licenses/gpl-faq.html created ====
+==== Document Object from http://www.marlow.dk/tech/src/dtm1184_linux_doc.html created ====
+==== Document Object from http://des.codeplex.com/SourceControl/ListDownloadableCommits.aspx created ====
+==== Document Object from http://gpl-violations.org/faq/sourcecode-faq.html created ====
+==== Create Document objects from url OK ====
+==== Searching overlaps on http://www.codeproject.com/KB/recipes/Distributed_Caching.aspx====
+==== Searching overlaps on http://www.gnu.org/licenses/gpl-faq.html====
+< extension done >
+!!== block of 6 words found ==!!
+!!== block of 5 words found ==!!
+!!== block of 5 words found ==!!
+< extension done >
+!!== block of 39 words found ==!!
+< extension done >
+!!== block of 77 words found ==!!
+< extension done >
+!!== block of 77 words found ==!!
+< extension done >
+!!== block of 14 words found ==!!
+!!== block of 5 words found ==!!
+!!== block of 5 words found ==!!
+< extension done >
+!!== block of 7 words found ==!!
+!!== block of 5 words found ==!!
+< extension done >
+!!== block of 6 words found ==!!
+!!== block of 5 words found ==!!
+!!== block of 5 words found ==!!
+==== Searching overlaps on http://www.marlow.dk/tech/src/dtm1184_linux_doc.html====
+!!== block of 5 words found ==!!
+< extension done >
+!!== block of 6 words found ==!!
+!!== block of 5 words found ==!!
+!!== block of 5 words found ==!!
+< extension done >
+!!== block of 82 words found ==!!
+< extension done >
+!!== block of 1829 words found ==!!
+==== Searching overlaps on http://des.codeplex.com/SourceControl/ListDownloadableCommits.aspx====
+< extension done >
+!!== block of 83 words found ==!!
+< extension done >
+!!== block of 278 words found ==!!
+< extension done >
+!!== block of 8 words found ==!!
+< extension done >
+!!== block of 1543 words found ==!!
+==== Searching overlaps on http://gpl-violations.org/faq/sourcecode-faq.html====
+< extension done >
+!!== block of 45 words found ==!!
+< extension done >
+!!== block of 9 words found ==!!
+< extension done >
+!!== block of 39 words found ==!!
+
+==== Diplay overlaps (fetch_url)====
+
+*********************
+MasterDocument ID -> -606377328
+MasterDocument name -> gpl.txt
+CopyDoc ID -> http://www.gnu.org/licenses/gpl-faq.html
+CopyDoc ID -> -614452858
+
+Total overlaps: 14
+Total common words: 261
+Overlap 1 size -> 6
+Overlap 2 size -> 5
+Overlap 3 size -> 5
+Overlap 4 size -> 39
+Overlap 5 size -> 77
+Overlap 6 size -> 77
+Overlap 7 size -> 14
+Overlap 8 size -> 5
+Overlap 9 size -> 5
+Overlap 10 size -> 7
+Overlap 11 size -> 5
+Overlap 12 size -> 6
+Overlap 13 size -> 5
+Overlap 14 size -> 5
+
+*********************
+MasterDocument ID -> -606377328
+MasterDocument name -> gpl.txt
+CopyDoc ID -> http://www.marlow.dk/tech/src/dtm1184_linux_doc.html
+CopyDoc ID -> -620883258
+
+Total overlaps: 6
+Total common words: 1932
+Overlap 0 size -> 5
+Overlap 1 size -> 6
+Overlap 2 size -> 5
+Overlap 3 size -> 5
+Overlap 4 size -> 82
+Overlap 5 size -> 1829
+
+*********************
+MasterDocument ID -> -606377328
+MasterDocument name -> gpl.txt
+CopyDoc ID -> http://des.codeplex.com/SourceControl/ListDownloadableCommits.aspx
+CopyDoc ID -> -620486788
+
+Total overlaps: 4
+Total common words: 1912
+Overlap 0 size -> 83
+Overlap 1 size -> 278
+Overlap 2 size -> 8
+Overlap 3 size -> 1543
+
+*********************
+MasterDocument ID -> -606377328
+MasterDocument name -> gpl.txt
+CopyDoc ID -> http://gpl-violations.org/faq/sourcecode-faq.html
+CopyDoc ID -> -626044428
+
+Total overlaps: 3
+Total common words: 93
+Overlap 0 size -> 45
+Overlap 1 size -> 9
+Overlap 2 size -> 39
+
+== Search Overlaps (local file)==
+< extension done >
+!!== block of 9 words found ==!!
+< extension done >
+!!== block of 9 words found ==!!
+== Search Overlaps (local file)==
+< extension done >
+!!== block of 9 words found ==!!
+2
+Do you want see the common region?(y/n): n
+don't display common region
+
+
+=== Goodbye :) ===
+
