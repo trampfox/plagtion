@@ -236,7 +236,54 @@ class MasterDocument < Document
 		else
 			return nil
 		end #if
-	end #search_overlaps 
+	end #search_overlaps
+	
+	def get_resultList()
+		if @resultList != nil
+			return @resultList
+		end
+	end 
+	
+	# searching for overlaps on documents found on the internet
+	def search_common_region()
+		for doc in @resultList										# Searchs if there are common region fo revery Document object created
+				puts "==== Searching overlaps on #{doc.doc_name}===="
+				overlap = self.search_overlaps(doc)		# if ovelap = nil no overlaps were found
+				if overlap != nil
+					@overlaps << overlap
+				end #if
+			end #for
+		$logger.debug("MasterDocument#fetch_url") {"@Overlaps size: #{@overlaps.size}"}
+	end
+	
+	# displays all the overlaps found
+	def display_overlaps()
+		i = 1
+		j = 1
+		print "\n==== Diplay overlaps (fetch_url)====\n"
+		if @overlaps.size > 0
+			for item in @overlaps
+				if item != nil
+				print "\n*********************\n"
+				print "MasterDocument ID -> #{item.master_doc.object_id}\n"
+				print "MasterDocument name -> #{item.master_doc.doc_name}\n"
+				print "CopyDoc ID -> #{item.copy_doc.doc_name}\n"
+				print "CopyDoc ID -> #{item.copy_doc.object_id}\n\n"
+				puts "Total overlaps: #{item.num_overlaps}"
+				puts "Total common words: #{item.tot_words}"
+				item.overlaps.each do |x| 
+					puts "Overlap #{j} size -> #{x[0]}"
+					j += 1
+					end
+				i += 1
+				j = 0
+				end
+			end #for
+		else
+			print"=== No overlaps found ===\n\n"
+		end #if
+		print "\n"
+	end #display
 
 	private # private method
 	
@@ -326,19 +373,7 @@ class MasterDocument < Document
 		end #while
 		puts "==== Create Document objects from url OK ===="
 		$logger.debug("MasterDocument#fetch_url") {"ResultList complete. Array size: #{@resultList.size}"}
-		
-		for doc in @resultList									# Searchs if there are common region fo revery Document object created
-			puts "==== Searching overlaps on #{doc.doc_name}===="
-			overlap = master.search_overlaps(doc)	# if ovelap = nil no overlaps were found
-			if overlap != nil
-				@overlaps << overlap
-			end #if
-		end #for
-		print "\n==== Diplay overlaps (fetch_url)====\n"
-		Plagtion.display_overlaps(@overlaps)
-		print "\n"
-		$logger.debug("MasterDocument#fetch_url") {"@Overlaps size: #{@overlaps.size}"}
-	end
+	end # end fetch_url
 	
 end #class
 
@@ -363,6 +398,6 @@ end #class
 		elsif url.include?(".txt")
 			return "txt"
 		else
-			return -1
+			return "html"
 		end #if
 	end #get_ext

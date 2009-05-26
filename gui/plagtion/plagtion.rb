@@ -18,17 +18,29 @@ class PlagtionGlade
   def on_quit1_activate(widget)
     puts "on_quit1_activate() is not implemented yet."
   end
-  def on_exitButton_clicked(widget)
-    puts "on_exitButton_clicked() is not implemented yet."
+  def on_quitButton_clicked(widget)
+    puts "on_quitButton_clicked() is not implemented yet."
+  end
+  def on_browseMaster_clicked(widget)
+    puts "on_browseMaster_clicked() is not implemented yet."
+  end
+  def on_initButton_clicked(widget)
+    puts "on_initButton_clicked() is not implemented yet."
   end
   def on_about1_activate(widget)
     puts "on_about1_activate() is not implemented yet."
   end
+  def on_webButton_clicked(widget)
+    puts "on_webButton_clicked() is not implemented yet."
+  end
   def on_mainWindow_delete_event(widget, arg0)
     puts "on_mainWindow_delete_event() is not implemented yet."
   end
-  def on_detectButton_clicked(widget)
-    puts "on_detectButton_clicked() is not implemented yet."
+  def on_browseCopy_clicked(widget)
+    puts "on_browseCopy_clicked() is not implemented yet."
+  end
+  def on_localButton_clicked(widget)
+    puts "on_localButton_clicked() is not implemented yet."
   end
 end
 

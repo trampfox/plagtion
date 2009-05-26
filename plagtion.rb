@@ -41,6 +41,13 @@ class Plagtion
 		puts "== Create MasterDocument =="
 		doc = MasterDocument.new("gpl.txt")	# input document
 		$logger.info("Plagtion") {"Master Document name: #{doc.doc_name}"}
+		doc.search_common_region()	
+		doc.display_overlaps()	
+		
+		
+		
+		
+		
 		
 		# create 2 Document obj for testing the methods
 		
