@@ -35,7 +35,7 @@
 		require 'open-uri'
 		require 'url_manager'
 		require 'search_engine'
-		require 'lib/ysearch'
+		require 'modules/ysearch'
 		require 'modules/readers'
 		
 		$logger.debug("PlagtionMod") {"Requires OK"}

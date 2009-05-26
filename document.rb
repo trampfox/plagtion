@@ -21,7 +21,7 @@
 
 # This class of object contains all the information about a web page
 # There's an instance of this class for every web page result
-class Document
+class WebDocument
 	attr_reader :content
 	
 	
@@ -97,6 +97,9 @@ class Document
 		return @content.size
 	end #num_words
 	
+	# return list of k words.
+	# n: position of the first word
+	# k: number of words
 	def get_words(n, k)
 		wordlist = []
 		for i in n...n+k
@@ -149,7 +152,7 @@ class Document
 	end #expTable
 end # class
 
-class MasterDocument < Document
+class MasterDocument < WebDocument
 	
 	def initialize(url)
 		super(url, url)
@@ -167,14 +170,16 @@ class MasterDocument < Document
 =begin
 		puts "=== searching on #{NUM_OF_SEARCHS} random block (Google cached)==="
 		google = GoogleCachedSearchEngine.new(self, @content, @@bsize)
-		resultUrl = google.search(NUM_OF_PAGES) 	# return an UrlManager obj 
-=end		
 		# search with Google search engine
 		puts "=== searching on #{NUM_OF_SEARCHS} random block (Google cached)==="
 		google = GoogleSearchEngine.new(self, @content, @@bsize)
 		resultUrl = google.search(NUM_OF_PAGES) 	# return an UrlManager obj 
+=end
+		puts "=== searching on #{NUM_OF_SEARCHS} random block (Yahoo)==="
+		yahoo = YahooSearchEngine.new(self, @content, @@bsize)
+		resultUrl = yahoo.search(NUM_OF_PAGES)
 		$logger.debug("MasterDocument") {"#{resultUrl}"}
-		fetch_url(self, resultUrl, google)
+		fetch_url(self, resultUrl, yahoo)
 	end #init
 	
 	# search if there are a common region between self and doc (Document object)
@@ -238,12 +243,6 @@ class MasterDocument < Document
 		end #if
 	end #search_overlaps
 	
-	def get_resultList()
-		if @resultList != nil
-			return @resultList
-		end
-	end 
-	
 	# searching for overlaps on documents found on the internet
 	def search_common_region()
 		for doc in @resultList										# Searchs if there are common region fo revery Document object created
@@ -260,7 +259,7 @@ class MasterDocument < Document
 	def display_overlaps()
 		i = 1
 		j = 1
-		print "\n==== Diplay overlaps (fetch_url)====\n"
+		print "\n==== Diplay overlaps (display_overlaps)====\n"
 		if @overlaps.size > 0
 			for item in @overlaps
 				if item != nil
@@ -272,13 +271,19 @@ class MasterDocument < Document
 				puts "Total overlaps: #{item.num_overlaps}"
 				puts "Total common words: #{item.tot_words}"
 				item.overlaps.each do |x| 
-					puts "Overlap #{j} size -> #{x[0]}"
+					puts "Overlap #{j} size -> #{x[0]} indexes: Master(#{x[1][0]}, #{x[1][1]}) Copy(#{x[2][0]}, #{x[2][1]})"
+					puts "call open to save file"
+					# save a file for test the overlaps (DEBUG CODE)
+					filename = "tmp/debug/"+item.master_doc.doc_name+"-"+j.to_s
+					open(filename,"w").write("**master: "+self.get_words(x[1][0], x[0]).to_s+" **copy: "+item.copy_doc.get_words(x[2][0], x[0]).to_s)
+					# end DEBUG CODE
 					j += 1
 					end
 				i += 1
 				j = 0
 				end
 			end #for
+			print "\n*********************\n"
 		else
 			print"=== No overlaps found ===\n\n"
 		end #if
@@ -351,9 +356,16 @@ class MasterDocument < Document
 			
 			if search_engine.kind_of?(GoogleCachedSearchEngine)			# search on cached pages
 				filename = "tmp/#{@@count}.html"
-				open(filename,"w").write(open(url).read)							# save temp local file
-				@resultList << Document.new(url, filename)
-			elsif search_engine.kind_of?(GoogleSearchEngine)				# search on normal pages
+				begin
+					open(filename,"w").write(open(url).read)					# save temp local file
+				rescue StandardError => msg
+					$error_logger.error("MasterDocument#fetch_url(open)") {"#{msg}"}
+					next 
+				end #exception																							# jump to next iteration
+				@resultList << WebDocument.new(url, filename)
+				puts "==== Document Object from #{url} created ===="
+				
+			elsif search_engine.kind_of?(GoogleSearchEngine) || search_engine.kind_of?(YahooSearchEngine)		# search on normal pages
 				if (extension = get_ext(url)) == -1 									# get the extension of file
 					next 																								# ignoring the file (unknown extension)
 				else 
@@ -361,13 +373,22 @@ class MasterDocument < Document
 					begin
 						open(filename,"w").write(open(url).read)					# save temp local file
 					rescue StandardError => msg
-						$logger.error("MasterDocument#fetch_url") {"#{msg}"}
-					end #exception				
-					@resultList << Document.new(url, filename)
-					puts "==== Document Object from #{url} created ===="
+						$error_logger.error("MasterDocument#fetch_url(open)") {"#{msg}"}
+						next 																							# jump to next iteration
+					end #exception	
+					
+					begin			
+						@resultList << WebDocument.new(url, filename)
+						puts "==== Document Object from #{url} created ===="
+					rescue StandardError => msg
+						$error_logger.error("MasterDocument#fetch_url(Document.new)") {"Document creation failed -> #{msg}"}
+						next 																							# jump to next iteration
+					end #exception
+					
 					# write the error on a log file and continue the execution of program
-					$logger.debug("MasterDocument#fetch_url") {"#{url} -> extension: #{extension}"} 
+					$error_logger.debug("MasterDocument#fetch_url") {"#{url} -> extension: #{extension}"} 
 				end #if
+			
 			end #if
 			
 		end #while

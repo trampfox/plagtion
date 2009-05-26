@@ -20,6 +20,7 @@ require 'logger'
 
 # create a log file and store it in a global variable 
 $logger = Logger.new('log/logfile.log', 'daily')
+$error_logger = Logger.new('log/error.log', 'daily')
 
 
 module Readers

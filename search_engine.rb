@@ -98,19 +98,26 @@ end #class
 
 class YahooSearchEngine < SearchEngine
 
-	def initialize()
+	def initialize(obj_ref, wlist, bsize)
+		super(obj_ref, wlist, bsize)
     @language='it'          # only italian pages
     @app_id = 'YahooDemo'   # this works, but plase use your id
   end
 
-  def search(wlist,n)
-    # create query
-    query = wlist.join(" ")
-    obj = WebSearch.new(@app_id, query, 'all', n)
-    obj.set_language(@language)
-    # get the results -- returns an array of hashes
-    results = obj.parse_results
-    results.map {|r| r['Url']}   # get url  
+  def search(num_of_pages)
+    super(num_of_pages)
+    for query in @searchString
+    	$logger.info("YahooSearchEngine") {"query -> #{query}"}
+    	stringQuery = query.join()
+    	puts stringQuery
+    	obj = WebSearch.new(@app_id, stringQuery, 'all')
+    	obj.set_language(@language)
+    	# get the results -- returns an array of hashes
+    	results = obj.parse_results
+    	results.map {|r| @tmpList << r['Url']}   # get url
+    end #for 
+    @urlManager.add_urls_yahoo(@tmpList) 
+    return @urlManager
    end
    
 end #class

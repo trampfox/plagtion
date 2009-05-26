@@ -51,6 +51,24 @@ class UrlManager
 		end #rescue
 	end #add_urls
  	
+ 	# add Yahoo result url. Yahoo rather then Google return url rappresented by string 
+ 	# lis: string list of url 
+ 	def add_urls_yahoo(lis)
+ 		begin
+	 		for url in lis
+					if !@urlList.include?(url) # add the url only if isn't already in the list
+						# sometimes the url doesn't contain the query part (it must be escluded if nil)
+						puts url
+						@urlList << url
+						$logger.info "#{url} added"
+					else
+						$logger.info "#{url} is already present in the list"
+					end #if
+			end #for
+		rescue StandardError => msg
+			$error_logger.error(msg)
+		end #rescue
+ 	end
  	# get the next url to fetch from the list @urlList
 	def get_next()
 		last = @urlList.size-1 # get last item index
