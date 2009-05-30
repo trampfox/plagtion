@@ -101,7 +101,7 @@ class YahooSearchEngine < SearchEngine
 	def initialize(obj_ref, wlist, bsize)
 		super(obj_ref, wlist, bsize)
     @language='it'          # only italian pages
-    @app_id = 'YahooDemo'   # this works, but plase use your id
+    @app_id = 'fQ19NwLV34FPwYY.h2I1Hc8VcSfCGGCiUPY8kFfi2m8cjbKeAx3YxV0779bydcfE2Q--'   # this works, but plase use your id
   end
 
   def search(num_of_pages)

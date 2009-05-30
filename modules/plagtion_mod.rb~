@@ -35,9 +35,12 @@
 		require 'open-uri'
 		require 'url_manager'
 		require 'search_engine'
-		require 'lib/ysearch'
+		require 'modules/ysearch'
 		require 'modules/readers'
+		require	'shell'
 		
 		$logger.debug("PlagtionMod") {"Requires OK"}
+		$platform = RUBY_PLATFORM
+		$logger.info("PlagtionMod") {"This program runs on: #{$platform} platform"}
 
 	end # module

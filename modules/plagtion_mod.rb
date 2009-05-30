@@ -37,7 +37,18 @@
 		require 'search_engine'
 		require 'modules/ysearch'
 		require 'modules/readers'
+		require	'shell'
 		
 		$logger.debug("PlagtionMod") {"Requires OK"}
+		$platform = RUBY_PLATFORM
+		$logger.info("PlagtionMod") {"This program runs on: #{$platform} platform"}
+		sh = Shell.new
+  	begin
+  		if (sh.find_system_command("html2text") != "")
+  			$html2textFlag = true
+  		end
+  	rescue Shell::Error::CommandNotFound
+  		$html2textFlag = false
+  	end
 
 	end # module

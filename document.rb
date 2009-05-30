@@ -34,11 +34,11 @@ class WebDocument
 	@doc_name = ""
 	@text = ""
 
-	def initialize(url, filename)
+	def initialize(url)
 		i = 0
     j = @@bsize - 1
 		@doc_name = url
-		@filename = filename
+		#@filename = filename
 		@content = Array.new(0)	
 		@@count += 1								 # Array of elements [w, pos]
     # integers indexes list (M elements)
@@ -48,40 +48,13 @@ class WebDocument
 			init_expTable
 			$logger.info("Document") {"@@expTable initialized"}
 		end #if
+		$logger.info("Document") {"reading #{url}"}
 		if ((@text = Readers::get_text(url)) == "")
-			puts "Error while reading file. See the logfile for more information"
-			exit()
-		else
-			@content = parse(@text)
-			$logger.info("Document") {"#{url} read"}
+			puts "Empty file #{url}"
 		end #if
+		@content = parse(@text)
+		$logger.info("Document") {"#{url} read"}
 	end #init
-	
-	def blockhash(a)
-		hasharray = Array.new(0)
-		sum = 0
-		i = @@bsize-1
-		for x in a
-			hasharray << (x.hash * @@expTable[i]) % @@table_size
-			i = i-1
-		end
-		hasharray.each {|elem| sum = sum + elem}
-		@last_hashvalue = sum % @@table_size
-		@last_fbvalue = hasharray[0] 						# farlo solo se non master document
-		#puts "last_fbvalue-> #{@last_fbvalue} last_hash-> #{@last_hashvalue}" 
-		return (sum % @@table_size) 						# return hash of block
-	end #blockhash
-	
-	# blockhash using the Bentley Ilroy algorithm
-	# a: word list
-	def blockhash_Bentley(a)
-		hasharray = Array.new(0)
-		temp = 0
-		temp = ((@last_hashvalue - @last_fbvalue) * P)+(a[@@bsize-1].hash)
-		@last_hashvalue = temp % @@table_size
-		@last_fbvalue = (((a[0].hash) * @@expTable[@@bsize-1])) % @@table_size
-		return (temp % @@table_size) 						# return hash of block
-	end # blockhash_Bentley
 	
 	# return url used to create self 
 	def doc_name()
@@ -112,7 +85,33 @@ class WebDocument
 		return wordlist
 	end #get_words
 	
-	private
+	private # private method
+	
+	def blockhash(a)
+		hasharray = Array.new(0)
+		sum = 0
+		i = @@bsize-1
+		for x in a
+			hasharray << (x.hash * @@expTable[i]) % @@table_size
+			i = i-1
+		end
+		hasharray.each {|elem| sum = sum + elem}
+		@last_hashvalue = sum % @@table_size
+		@last_fbvalue = hasharray[0] 						# farlo solo se non master document
+		#puts "last_fbvalue-> #{@last_fbvalue} last_hash-> #{@last_hashvalue}" 
+		return (sum % @@table_size) 						# return hash of block
+	end #blockhash
+	
+	# blockhash using the Bentley Ilroy algorithm
+	# a: word list
+	def blockhash_Bentley(a)
+		hasharray = Array.new(0)
+		temp = 0
+		temp = ((@last_hashvalue - @last_fbvalue) * P)+(a[@@bsize-1].hash)
+		@last_hashvalue = temp % @@table_size
+		@last_fbvalue = (((a[0].hash) * @@expTable[@@bsize-1])) % @@table_size
+		return (temp % @@table_size) 						# return hash of block
+	end # blockhash_Bentley
 	
 	# convert accented vowels in place
 	def remove_accent!(s)
@@ -150,12 +149,13 @@ class WebDocument
 			@@expTable << P**i
 		end
 	end #expTable
-end # class
+
+end # class WebDocument
 
 class MasterDocument < WebDocument
 	
 	def initialize(url)
-		super(url, url)
+		super(url)
 		@resultList = [] # -> for test only. contains Document object
 		i = 0
 		puts "=== blockHash (Document)===" 				# calculate the block hash and populate the indexTable
@@ -163,7 +163,7 @@ class MasterDocument < WebDocument
 				wlist = get_words(i, @@bsize)
 				hashValue = blockhash(wlist)  				# i is the index of the first word in @content
 				@indexTable[hashValue] << i 
-				$logger.debug("MasterDocument") {"#{wlist} ---> index #{@content[i][1]} hashValue -> #{hashValue}"}
+				#$logger.debug("MasterDocument") {"#{wlist} ---> index #{@content[i][1]} hashValue -> #{hashValue}"}
 				i = i+@@bsize
 			end # while
 		# search with Google search engine on a cached page database
@@ -272,10 +272,9 @@ class MasterDocument < WebDocument
 				puts "Total common words: #{item.tot_words}"
 				item.overlaps.each do |x| 
 					puts "Overlap #{j} size -> #{x[0]} indexes: Master(#{x[1][0]}, #{x[1][1]}) Copy(#{x[2][0]}, #{x[2][1]})"
-					puts "call open to save file"
 					# save a file for test the overlaps (DEBUG CODE)
 					filename = "tmp/debug/"+item.master_doc.doc_name+"-"+j.to_s
-					open(filename,"w").write("**master: "+self.get_words(x[1][0], x[0]).to_s+" **copy: "+item.copy_doc.get_words(x[2][0], x[0]).to_s)
+					open(filename,"w").write("==== master: "+self.get_words(x[1][0], x[0]).to_s+"\n==== copy -> #{item.copy_doc.doc_name}:\n "+item.copy_doc.get_words(x[2][0], x[0]).to_s)
 					# end DEBUG CODE
 					j += 1
 					end
@@ -294,6 +293,7 @@ class MasterDocument < WebDocument
 	
 	# control if the found block hash is the same block 
 	# return the size of the found string
+	# wlist: word list
 	# index_first: index of the first word block in @content
 	# index_second: index of the first word block in doc.content
 	def block_control(doc, wlist, index_first, index_second)
@@ -355,39 +355,42 @@ class MasterDocument < WebDocument
 		while ((url = urlList.get_next) != nil)
 			
 			if search_engine.kind_of?(GoogleCachedSearchEngine)			# search on cached pages
+=begin
 				filename = "tmp/#{@@count}.html"
 				begin
 					open(filename,"w").write(open(url).read)					# save temp local file
 				rescue StandardError => msg
-					$error_logger.error("MasterDocument#fetch_url(open)") {"#{msg}"}
+					$error_logger.error("MasterDocument#fetch_url(open)") {"error on #{url} -> #{msg}"}
 					next 
-				end #exception																							# jump to next iteration
-				@resultList << WebDocument.new(url, filename)
+				end #exception
+=end																							# jump to next iteration
+				puts "call WebDocument.new"
+				@resultList << WebDocument.new(url)
 				puts "==== Document Object from #{url} created ===="
 				
 			elsif search_engine.kind_of?(GoogleSearchEngine) || search_engine.kind_of?(YahooSearchEngine)		# search on normal pages
+=begin
 				if (extension = get_ext(url)) == -1 									# get the extension of file
 					next 																								# ignoring the file (unknown extension)
 				else 
 					filename = "tmp/#{@@count}."+extension
 					begin
 						open(filename,"w").write(open(url).read)					# save temp local file
-					rescue StandardError => msg
+					rescue StandardError, Timeout::Error => msg
 						$error_logger.error("MasterDocument#fetch_url(open)") {"#{msg}"}
 						next 																							# jump to next iteration
 					end #exception	
-					
-					begin			
-						@resultList << WebDocument.new(url, filename)
+=end
+					begin	
+						@resultList << WebDocument.new(url)
 						puts "==== Document Object from #{url} created ===="
 					rescue StandardError => msg
-						$error_logger.error("MasterDocument#fetch_url(Document.new)") {"Document creation failed -> #{msg}"}
+						$error_logger.error("MasterDocument#fetch_url(Document.new)") {"Document creation failed -> #{msg} #{url}"}
 						next 																							# jump to next iteration
 					end #exception
 					
 					# write the error on a log file and continue the execution of program
-					$error_logger.debug("MasterDocument#fetch_url") {"#{url} -> extension: #{extension}"} 
-				end #if
+					#$error_logger.debug("MasterDocument#fetch_url") {"#{url} -> extension: #{extension}"} 
 			
 			end #if
 			
@@ -397,28 +400,3 @@ class MasterDocument < WebDocument
 	end # end fetch_url
 	
 end #class
-
-# simple method to get the extension of file pointed by passed url
-	def get_ext(url)
-		if url.include?(".html")
-			return "html"
-		elsif url.include?(".htm")
-			return "html"
-		elsif url.include?(".xhtml")
-			return "html"
-		elsif url.include?(".shtml")
-			return "html"
-		elsif url.include?(".php")
-			return "php"
-		elsif url.include?(".asp")
-			return "asp"
-		elsif url.include?(".pdf")
-			return "pdf"
-		elsif url.include?(".doc")
-			return "doc"
-		elsif url.include?(".txt")
-			return "txt"
-		else
-			return "html"
-		end #if
-	end #get_ext

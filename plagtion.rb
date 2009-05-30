@@ -37,7 +37,9 @@ class Plagtion
 	
 	def main()
 		overlaps = [] # List of Overlap object
-		$logger.debug "PID: #{$$}" # process number
+		if($platform.include?("mswin"))
+			puts("This program on Windows doesn't support the pdf/doc files")
+		end #if
 		puts "== Create MasterDocument =="
 		doc = MasterDocument.new("gpl.txt")	# input document
 		$logger.info("Plagtion") {"Master Document name: #{doc.doc_name}"}
@@ -45,14 +47,11 @@ class Plagtion
 		doc.display_overlaps()	
 		
 		
-		
-		
-		
-		
+=begin		
 		# create 2 Document obj for testing the methods
 		
 		"== Create Copy Document =="
-		doc2 = Document.new("./test/small_gpl.txt", "./test/small_gpl.txt")
+		doc2 = WebDocument.new("./test/small_gpl.txt", "./test/small_gpl.txt")
 		$logger.info("Plagtion") {"Document name: #{doc2.doc_name}"}
 		puts "== Search Overlaps (local file)=="
 		overlap = doc.search_overlaps(doc2)
@@ -60,7 +59,7 @@ class Plagtion
 			overlaps << overlap
 		end
 		"== Create Copy Document 2 =="
-		doc3 = Document.new("./test/small_gpl2.txt", "./test/small_gpl2.txt")
+		doc3 = WebDocument.new("./test/small_gpl2.txt", "./test/small_gpl2.txt")
 		$logger.info("Plagtion") {"Document name: #{doc2.doc_name}"}
 		puts "== Search Overlaps (local file)=="
 		overlap2 = doc.search_overlaps(doc3)
@@ -77,6 +76,7 @@ class Plagtion
 		else
 			puts "don't display common region" 
 		end
+=end
 		print "\n\n=== Goodbye :) ===\n\n"
 	end # main
 	
