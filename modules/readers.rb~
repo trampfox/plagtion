@@ -29,13 +29,10 @@ module Readers
   end
 
   def Readers.get_text(path)
+  
   	if ($platform.include?("linux"))														# program is running on GNU/Linux machine 
-=begin
-	  	if (path =~ /^http:\/\/.*$/) != nil
-=end
 			# provare a controllare path per html2text
 		    begin
-		      #ext = File.extname(path).downcase
 		      ext = get_ext(path)
 		      puts ext 																							# DEBUG puts
 		      case ext
@@ -44,11 +41,9 @@ module Readers
 		      when "pdf": pdf_reader(path)
 		      when "doc": word_reader(path)
 		      when "txt": text_reader(path)
-		      #else unknown_type_reader(path)
 		      else ($html2textFlag == true) ? html_reader_system(path) : html_reader(path)
 		      end #case
 		    rescue Readers::ReaderError => msg
-		      # send message to log file
 		      $error_logger.error(msg)
 		      return ""  
 		    end
@@ -71,7 +66,7 @@ module Readers
 		    end #rescue
 		   end #if
 	  end #if
-  end
+  end #get_text
 
 
   # ---------- handling of a file of unknown type 
@@ -90,6 +85,8 @@ module Readers
     pdf_text = %x{pdftotext #{options} #{filename} - 2>/dev/null}
     #pdf_text = system("pdftotext #{options} #{path} - 2>/dev/null")
     # puts $?.exitstatus
+    filename = "tmp/pdf_temp.txt"
+    open(filename,"w").write(pdf_text)
     if $?.exitstatus == 127
       raise ReaderError, 'pdftotext(1) missing'
     elsif $?.exitstatus != 0

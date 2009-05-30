@@ -85,6 +85,10 @@ module Readers
     pdf_text = %x{pdftotext #{options} #{filename} - 2>/dev/null}
     #pdf_text = system("pdftotext #{options} #{path} - 2>/dev/null")
     # puts $?.exitstatus
+    # DEBUG: save a temp txt file
+    filename = "tmp/pdf_temp.txt"
+    open(filename,"w").write(pdf_text)
+    # end DEBUG
     if $?.exitstatus == 127
       raise ReaderError, 'pdftotext(1) missing'
     elsif $?.exitstatus != 0

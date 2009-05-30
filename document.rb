@@ -38,9 +38,12 @@ class WebDocument
 		i = 0
     j = @@bsize - 1
 		@doc_name = url
+		@mutex = Mutex.new
 		#@filename = filename
 		@content = Array.new(0)	
-		@@count += 1								 # Array of elements [w, pos]
+		@mutex.lock
+			@@count += 1								 # Array of elements [w, pos]
+		@mutex.unlock
     # integers indexes list (M elements)
     # Each index points to the begin of the word block
 		@indexTable = Array.new(@@table_size) {Array.new(0)}
@@ -53,7 +56,7 @@ class WebDocument
 			puts "Empty file #{url}"
 		end #if
 		@content = parse(@text)
-		$logger.info("Document") {"#{url} read"}
+		$logger.info("Document") {"#{url} read | @content.size:#{@content.size}"}
 	end #init
 	
 	# return url used to create self 
@@ -245,13 +248,20 @@ class MasterDocument < WebDocument
 	
 	# searching for overlaps on documents found on the internet
 	def search_common_region()
+		searchMutex = Mutex.new
+		threads = []
 		for doc in @resultList										# Searchs if there are common region fo revery Document object created
-				puts "==== Searching overlaps on #{doc.doc_name}===="
-				overlap = self.search_overlaps(doc)		# if ovelap = nil no overlaps were found
-				if overlap != nil
-					@overlaps << overlap
-				end #if
+				threads << Thread.new do
+					puts "==== Searching overlaps on #{doc.doc_name}===="
+					overlap = self.search_overlaps(doc)											# if ovelap = nil no overlaps were found
+					if overlap != nil
+						searchMutex.lock
+							@overlaps << overlap
+						searchMutex.unlock
+					end #if
+				end # do threads
 			end #for
+			threads.each {|t| t.join}																		# wait the execution of every thread created
 		$logger.debug("MasterDocument#fetch_url") {"@Overlaps size: #{@overlaps.size}"}
 	end
 	
@@ -350,16 +360,15 @@ class MasterDocument < WebDocument
 	# urlList: contains all the urls find by Google
 	# master: MasterDocument pointer
 	def fetch_url(master, urlList, search_engine)
-		@mutex = Mutex.new
 		threads = []
-		@overlaps = [] 																						# Array that contains all the overlaps found
+		@overlaps = [] 																							# Array that contains all the overlaps found
 		puts "==== Create Document objects from url ===="
 		while ((url = urlList.get_next) != nil)
 			threads << Thread.new do
 				if search_engine.kind_of?(GoogleCachedSearchEngine)			# search on cached pages
 					begin
 						document = WebDocument.new(url)
-						@mutex.lock
+						@mutex.lock																					# controls access to a shared source
 							@resultList << document
 						@mutex.unlock
 						puts "==== Document Object from #{document.doc_name} created ===="
@@ -370,7 +379,7 @@ class MasterDocument < WebDocument
 				elsif search_engine.kind_of?(GoogleSearchEngine) || search_engine.kind_of?(YahooSearchEngine)		# search on normal pages
 						begin	
 							document = WebDocument.new(url)
-							@mutex.lock
+							@mutex.lock																				# controls access to a shared source
 								@resultList << document
 							@mutex.unlock
 							puts "==== Document Object from #{document.doc_name} created ===="
