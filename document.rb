@@ -219,7 +219,9 @@ class MasterDocument < WebDocument
 					if (block_control(doc, wlist, @indexTable[index][y], i)) 								# true if find a copied block 
 						size = @extended_index["end_copy"] - @extended_index["start_copy"]		# size of common block found
 						puts "!!== block of #{size} words found ==!!" 
-						overlap.add(size, @extended_index) 																		# add the overlap region that has just found
+						@addOverlapMutex.lock
+							overlap.add(size, @extended_index) 																		# add the overlap region that has just found
+						@addOverlapMutex.unlock
 						i += size
 						flag = 0
 					else
@@ -248,16 +250,17 @@ class MasterDocument < WebDocument
 	
 	# searching for overlaps on documents found on the internet
 	def search_common_region()
-		searchMutex = Mutex.new
+		@searchMutex = Mutex.new
+		@addOverlapMutex = Mutex.new
 		threads = []
 		for doc in @resultList										# Searchs if there are common region fo revery Document object created
 				threads << Thread.new do
 					puts "==== Searching overlaps on #{doc.doc_name}===="
 					overlap = self.search_overlaps(doc)											# if ovelap = nil no overlaps were found
 					if overlap != nil
-						searchMutex.lock
+						@searchMutex.lock
 							@overlaps << overlap
-						searchMutex.unlock
+						@searchMutex.unlock
 					end #if
 				end # do threads
 			end #for
