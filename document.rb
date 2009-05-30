@@ -350,51 +350,41 @@ class MasterDocument < WebDocument
 	# urlList: contains all the urls find by Google
 	# master: MasterDocument pointer
 	def fetch_url(master, urlList, search_engine)
+		@mutex = Mutex.new
+		threads = []
 		@overlaps = [] 																						# Array that contains all the overlaps found
 		puts "==== Create Document objects from url ===="
 		while ((url = urlList.get_next) != nil)
-			
-			if search_engine.kind_of?(GoogleCachedSearchEngine)			# search on cached pages
-=begin
-				filename = "tmp/#{@@count}.html"
-				begin
-					open(filename,"w").write(open(url).read)					# save temp local file
-				rescue StandardError => msg
-					$error_logger.error("MasterDocument#fetch_url(open)") {"error on #{url} -> #{msg}"}
-					next 
-				end #exception
-=end																							# jump to next iteration
-				puts "call WebDocument.new"
-				@resultList << WebDocument.new(url)
-				puts "==== Document Object from #{url} created ===="
-				
-			elsif search_engine.kind_of?(GoogleSearchEngine) || search_engine.kind_of?(YahooSearchEngine)		# search on normal pages
-=begin
-				if (extension = get_ext(url)) == -1 									# get the extension of file
-					next 																								# ignoring the file (unknown extension)
-				else 
-					filename = "tmp/#{@@count}."+extension
+			threads << Thread.new do
+				if search_engine.kind_of?(GoogleCachedSearchEngine)			# search on cached pages
 					begin
-						open(filename,"w").write(open(url).read)					# save temp local file
-					rescue StandardError, Timeout::Error => msg
-						$error_logger.error("MasterDocument#fetch_url(open)") {"#{msg}"}
-						next 																							# jump to next iteration
-					end #exception	
-=end
-					begin	
-						@resultList << WebDocument.new(url)
-						puts "==== Document Object from #{url} created ===="
+						document = WebDocument.new(url)
+						@mutex.lock
+							@resultList << document
+						@mutex.unlock
+						puts "==== Document Object from #{document.doc_name} created ===="
 					rescue StandardError => msg
 						$error_logger.error("MasterDocument#fetch_url(Document.new)") {"Document creation failed -> #{msg} #{url}"}
-						next 																							# jump to next iteration
+							next 																							# jump to next iteration
 					end #exception
-					
-					# write the error on a log file and continue the execution of program
-					#$error_logger.debug("MasterDocument#fetch_url") {"#{url} -> extension: #{extension}"} 
-			
-			end #if
-			
+				elsif search_engine.kind_of?(GoogleSearchEngine) || search_engine.kind_of?(YahooSearchEngine)		# search on normal pages
+						begin	
+							document = WebDocument.new(url)
+							@mutex.lock
+								@resultList << document
+							@mutex.unlock
+							puts "==== Document Object from #{document.doc_name} created ===="
+						rescue StandardError => msg
+							$error_logger.error("MasterDocument#fetch_url(Document.new)") {"Document creation failed -> #{msg} #{url}"}
+							next 																							# jump to next iteration
+						end #exception
+						# write the error on a log file and continue the execution of program
+						#$error_logger.debug("MasterDocument#fetch_url") {"#{url} -> extension: #{extension}"} 	
+				end #if
+			end # do thread
 		end #while
+		threads.each {|t| t.join}																		# wait the execution of every thread created
+		puts "@resultList size: #{@resultList.size}"								# DEBUG puts
 		puts "==== Create Document objects from url OK ===="
 		$logger.debug("MasterDocument#fetch_url") {"ResultList complete. Array size: #{@resultList.size}"}
 	end # end fetch_url

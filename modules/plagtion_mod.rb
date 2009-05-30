@@ -31,13 +31,19 @@
 		require 'document'
 		require 'overlap'
 		require 'net/http'
-		require 'hpricot'
-		require 'open-uri'
 		require 'url_manager'
 		require 'search_engine'
 		require 'modules/ysearch'
 		require 'modules/readers'
 		require	'shell'
+		# needed by Readers
+		require 'htmlentities'
+		require 'iconv'
+		require 'kconv'
+		require 'logger'
+		require 'hpricot'
+		require 'open-uri'
+		require 'thread.rb'
 		
 		$logger.debug("PlagtionMod") {"Requires OK"}
 		$platform = RUBY_PLATFORM

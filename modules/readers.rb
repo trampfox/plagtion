@@ -29,50 +29,34 @@ module Readers
   end
 
   def Readers.get_text(path)
-  	if ($platform.include?("linux"))
-=begin
-	  	if (path =~ /^http:\/\/.*$/) != nil
-=end
+  
+  	if ($platform.include?("linux"))														# program is running on GNU/Linux machine 
 			# provare a controllare path per html2text
 		    begin
-		      #ext = File.extname(path).downcase
 		      ext = get_ext(path)
-		      puts ext
+		      puts ext 																							# DEBUG puts
 		      case ext
-		      when /(html|php|asp)/:
-		      	if $html2textFlag == true 
-		      		html_reader_system(path)
-		      	else
-		      		html_reader(path)
-		      	end #if
+		      # if this flag is set to true html2text is installed
+		      when /(html|php|asp)/: ($html2textFlag == true) ? html_reader_system(path) : html_reader(path) 
 		      when "pdf": pdf_reader(path)
 		      when "doc": word_reader(path)
 		      when "txt": text_reader(path)
-		      #else unknown_type_reader(path)
-		      else 
-		      	if $html2textFlag == true 
-		      		html_reader_system(path)
-		      	else
-		      		html_reader(path)
-		      	end #if
+		      else ($html2textFlag == true) ? html_reader_system(path) : html_reader(path)
 		      end #case
 		    rescue Readers::ReaderError => msg
-		      # send message to log file
 		      $error_logger.error(msg)
 		      return ""  
 		    end
 		   #end # if
-		elsif ($platform.include?("mswin"))
+		elsif ($platform.include?("mswin"))													# program is running on MS Windows machine 
 			if (path =~ /^http:\/\/.*$/) != nil
 	  		html_reader(path)
 			else
 				begin
 		      ext = File.extname(path).downcase
 		      case ext
-		      when /\.html?$/: html_reader(path)
-		      when /\.php?$/: html_reader(path)
-		      when /\.asp?$/: html_reader(path)
-		      when ".txt": text_reader(path)
+		      when /(html|php|asp)/: html_reader(path)
+		      when "txt": text_reader(path)
 		      else unknown_type_reader(path)
 		      end #case
 		      rescue Readers::ReaderError => msg
@@ -82,7 +66,7 @@ module Readers
 		    end #rescue
 		   end #if
 	  end #if
-  end
+  end #get_text
 
 
   # ---------- handling of a file of unknown type 
