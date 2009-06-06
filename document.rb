@@ -55,8 +55,8 @@ class WebDocument
 		end #if
 		$logger.info("Document") {"reading #{url}"}
 		if ((@text = Readers::get_text(url)) == "")
-			puts "Empty file #{url}"
-			return -1
+			puts "Empty file #{url} return nil"
+			return nil
 		end #if
 		@content = parse(@text)
 		$logger.info("Document") {"#{url} read | @content.size:#{@content.size}"}
@@ -163,6 +163,7 @@ class MasterDocument < WebDocument
 	def initialize(url)
 		super(url)
 		@resultList = [] # -> for test only. contains Document object
+		resultUrlList = []
 		i = 0
 		puts "=== blockHash (Document)===" 				# calculate the block hash and populate the indexTable
 			while i < @content.length-1 
@@ -172,20 +173,24 @@ class MasterDocument < WebDocument
 				#$logger.debug("MasterDocument") {"#{wlist} ---> index #{@content[i][1]} hashValue -> #{hashValue}"}
 				i = i+@@bsize
 			end # while
-		# search with Google search engine on a cached page database
-=begin
-		puts "=== searching on #{NUM_OF_SEARCHS} random block (Google cached)==="
-		google = GoogleCachedSearchEngine.new(self, @content, @@bsize)
-		# search with Google search engine
-		puts "=== searching on #{NUM_OF_SEARCHS} random block (Google cached)==="
-		google = GoogleSearchEngine.new(self, @content, @@bsize)
-		resultUrl = google.search(NUM_OF_PAGES) 	# return an UrlManager obj 
-=end
-		puts "=== searching on #{NUM_OF_SEARCHS} random block (Yahoo)==="
-		yahoo = YahooSearchEngine.new(self, @content, @@bsize)
-		resultUrl = yahoo.search(NUM_OF_PAGES)
-		$logger.debug("MasterDocument") {"#{resultUrl}"}
-		fetch_url(self, resultUrl, yahoo)
+		# search with Google and Yahoo 
+		yahooThread = Thread.new do
+			puts "=== searching on #{NUM_OF_SEARCHS} random block (Yahoo) ==="
+			yahoo = YahooSearchEngine.new(self, @content, @@bsize)
+			resultUrlList << yahoo.search(NUM_OF_RESULTS_YAHOO)
+		end
+		
+		googleThread = Thread.new do
+			puts "=== searching on #{NUM_OF_SEARCHS} random block (Google) ==="
+			google = GoogleSearchEngine.new(self, @content, @@bsize)
+			resultUrlList << google.search(NUM_OF_PAGES) 	# return an UrlManager obj 
+		end
+		yahooThread.join
+		googleThread.join # wait the execution of threads
+		$logger.debug("MasterDocument") {"#{resultUrlList}"}
+		for results in resultUrlList
+			fetch_url(self, results)
+		end #for
 	end #init
 	
 	# search if there are a common region between self and doc (Document object)
@@ -369,7 +374,7 @@ class MasterDocument < WebDocument
 	# Fetchs URL in the list urlList
 	# urlList: contains all the urls find by Google
 	# master: MasterDocument pointer
-	def fetch_url(master, urlList, search_engine)
+	def fetch_url(master, urlList)
 		threads = []
 		@overlaps = [] 																							# Array that contains all the overlaps found
 		puts "==== Create Document objects from url ===="
@@ -378,7 +383,7 @@ class MasterDocument < WebDocument
 				# togliere diversificazione 
 				begin	
 					document = WebDocument.new(url)
-					if document != -1
+					if document != nil
 						@mutex.lock																				# controls access to a shared source
 							@resultList << document
 						@mutex.unlock
@@ -387,10 +392,10 @@ class MasterDocument < WebDocument
 						puts "Empty document not added" 
 					end #if
 				rescue StandardError => msg
+					# write the error on a log file and continue the execution of program
 					$error_logger.error("MasterDocument#fetch_url(Document.new)") {"Document creation failed -> #{msg} #{url}"}
 					next 																							# jump to next iteration
 				end #exception
-				# write the error on a log file and continue the execution of program
 				#$error_logger.debug("MasterDocument#fetch_url") {"#{url} -> extension: #{extension}"} 	
 			end # do thread
 		end #while

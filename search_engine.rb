@@ -105,13 +105,13 @@ class YahooSearchEngine < SearchEngine
     @app_id = 'fQ19NwLV34FPwYY.h2I1Hc8VcSfCGGCiUPY8kFfi2m8cjbKeAx3YxV0779bydcfE2Q--'   # this works, but plase use your id
   end
 
-  def search(num_of_pages)
-    super(num_of_pages)
+  def search(num_of_results)
+    super(num_of_results)
     for query in @searchString
     	$logger.info("YahooSearchEngine") {"query -> #{query}"}
     	stringQuery = query.join()
     	puts stringQuery
-    	obj = WebSearch.new(@app_id, stringQuery, 'all')
+    	obj = WebSearch.new(@app_id, stringQuery, num_of_results, 'all')
     	obj.set_language(@language)
     	# get the results -- returns an array of hashes
     	results = obj.parse_results

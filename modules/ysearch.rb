@@ -366,33 +366,33 @@ end
 
 
 class WebSearch < Search
-    def initialize(app_id, query, type='all', results=10, start=1, format=nil, adult_ok=0)
-        super Search
-    	set_app_id(app_id)
-    	set_svc_service($SERVICES['web_search'][0])
-	set_svc_name($SERVICES['web_search'][1])
-	set_query(query)
-	set_type(type)
-	set_results(results)
-	set_start(start)
-	set_format(format)
-	set_adult_ok(adult_ok)
-    end
+    def initialize(app_id, query, results, type='all', start=1, format=nil, adult_ok=0)
+       super Search
+	  	set_app_id(app_id)
+	  	set_svc_service($SERVICES['web_search'][0])
+			set_svc_name($SERVICES['web_search'][1])
+			set_query(query)
+			set_type(type)
+			set_results(results)
+			set_start(start)
+			set_format(format)
+			set_adult_ok(adult_ok)
+	    end
 
-    def get_similar_ok()
-        return get_param("similar_ok")
-    end
-    def set_similar_ok(value)
-        set_param("similar_ok", value)
-    end
+	    def get_similar_ok()
+	        return get_param("similar_ok")
+	    end
+	    def set_similar_ok(value)
+	        set_param("similar_ok", value)
+	    end
 
-    def get_language()
-        return get_param("language")
-    end
-    def set_language(value)
-        set_param("language", value)
-    end
-end
+	    def get_language()
+	        return get_param("language")
+	    end
+	    def set_language(value)
+	        set_param("language", value)
+	    end
+		end
 
 
 

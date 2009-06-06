@@ -34,7 +34,6 @@ module Readers
 			# provare a controllare path per html2text
 		    begin
 		      ext = get_ext(path)
-		      puts ext 																							# DEBUG puts
 		      case ext
 		      # if this flag is set to true html2text is installed
 		      when /(html|php|asp)/: ($html2textFlag == true) ? html_reader_system(path) : html_reader(path) 
@@ -172,7 +171,7 @@ module Readers
 
 	# html to text method that uses html2text external program (only on GNU/Linux machine)	
 	def Readers.html_reader_system(path)
-		#puts "call html system"  																				# DEBUG puts
+		puts "call html system"  																				# DEBUG puts
     text = %x{html2text #{path}}
     #text = system("html2text #{path}")
     # puts $?.exitstatus

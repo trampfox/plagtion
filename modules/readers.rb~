@@ -111,7 +111,7 @@ module Readers
     if $?.exitstatus == 127
       raise ReaderError, 'antiword(1) missing'
     elsif $?.exitstatus != 0
-      raise ReaderError, "Failed converting word file: #{path}"
+      raise ReaderError, "Failed converting word file: #{path} #{word_text}"
     else
       return word_text
     end
