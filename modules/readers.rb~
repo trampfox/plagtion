@@ -78,15 +78,19 @@ module Readers
 
   # ---------- pdf conversion 
   def Readers.pdf_reader(path)
-  	puts "call pdf reader"																							# DEBUG puts
+  	#puts "call pdf reader"																							# DEBUG puts
     options = "-enc Latin1 -nopgbrk"
-    filename = "tmp/pdf_temp.pdf"
+    temp = path.scan(/\w+/)
+		temp.delete_at(0) if (temp.include?("http"))
+		filename = "tmp/debug/"+temp.join("_")+".pdf"
     open(filename,"w").write(open(path).read)
     pdf_text = %x{pdftotext #{options} #{filename} - 2>/dev/null}
     #pdf_text = system("pdftotext #{options} #{path} - 2>/dev/null")
     # puts $?.exitstatus
-    filename = "tmp/pdf_temp.txt"
+    # DEBUG: save a temp txt file
+    filename = "tmp/debug/"+temp.join("_")+".txt"
     open(filename,"w").write(pdf_text)
+    # end DEBUG
     if $?.exitstatus == 127
       raise ReaderError, 'pdftotext(1) missing'
     elsif $?.exitstatus != 0
@@ -99,6 +103,7 @@ module Readers
 
   # ----------- word conversion
   def Readers.word_reader(path)
+  	puts "call word_reader"
     options = "-m 8859-1"
     word_text = %x{antiword #{options} #{path}  2>/dev/null}
     #word_text = system("antiword #{options} #{path}  2>/dev/null")
@@ -128,7 +133,7 @@ module Readers
 
   # ---------- html coversion 
   def Readers.html_reader(path)
-  	puts "call html"																							# DEBUG puts
+  	#puts "call html"																							# DEBUG puts
     begin
       doc = Hpricot(open(path))
       text = html2text(doc)
@@ -167,7 +172,7 @@ module Readers
 
 	# html to text method that uses html2text external program (only on GNU/Linux machine)	
 	def Readers.html_reader_system(path)
-		puts "call html system"  																				# DEBUG puts
+		#puts "call html system"  																				# DEBUG puts
     text = %x{html2text #{path}}
     #text = system("html2text #{path}")
     # puts $?.exitstatus

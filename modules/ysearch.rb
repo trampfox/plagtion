@@ -172,96 +172,96 @@ class Search
     end
 
     def get_url()
-        params = @params
-        update(@params, {"appid" => @app_id})
-        @url = "#{@service['protocol']}://#{@service['server']}/#{@service['service']}/#{@service['version']}/#{@service['name']}?" + encode_params
-        return @url
+      params = @params
+      update(@params, {"appid" => @app_id})
+      @url = "#{@service['protocol']}://#{@service['server']}/#{@service['service']}/#{@service['version']}/#{@service['name']}?" + encode_params
+      return @url
     end
 
     def open()
-        url = get_url()
-	resp = Net::HTTP.get_response(URI.parse(url))
-	@data = resp.body
-        return @data
+	    url = get_url()
+			resp = Net::HTTP.get_response(URI.parse(url))
+			@data = resp.body
+	    return @data
     end
 
     # converts all the XML that the webservice returns
     # into Ruby data structs
     def parse_results()
     	open()
-	xml_string = @data
-	doc = Document.new(xml_string)
-	results = []
-	results_nos = []
-	results_titles = []
-	results_summaries = []
-	results_urls = []
-	results_clickurls = []
-	results_moddates = []
-	results_mimetypes = []
+			xml_string = @data
+			doc = Document.new(xml_string)
+			results = []
+			results_nos = []
+			results_titles = []
+			results_summaries = []
+			results_urls = []
+			results_clickurls = []
+			results_moddates = []
+			results_mimetypes = []
 
-	# myweb2
-	results_users = []
-	results_notes = []
-	results_dates = []
-	results_tags = []
-	results_freqs = []
+			# myweb2
+			results_users = []
+			results_notes = []
+			results_dates = []
+			results_tags = []
+			results_freqs = []
 
-	doc.elements.each('ResultSet/Result') { |element|
-			results_nos << ''
-	}
-	doc.elements.each('ResultSet/Result/Title') { |element|
-			results_titles << element.text
-	}
-	doc.elements.each('ResultSet/Result/Summary') { |element|
-			results_summaries << element.text
-	}
-	doc.elements.each('ResultSet/Result/Url') { |element|
-			results_urls << element.text
-	}
-	doc.elements.each('ResultSet/Result/ClickUrl') { |element|
-			results_clickurls << element.text
-	}
-	doc.elements.each('ResultSet/Result/ModificationDate') { |element|
-			results_moddates << element.text
-	}
-	doc.elements.each('ResultSet/Result/MimeType') { |element|
-			results_mimetypes << element.text
-	}
-	doc.elements.each('ResultSet/Result/User') { |element|
-			results_users << element.text
-	}
-	doc.elements.each('ResultSet/Result/Note') { |element|
-			results_notes << element.text
-	}
-	doc.elements.each('ResultSet/Result/Date') { |element|
-			results_dates << element.text
-	}
-	doc.elements.each('ResultSet/Result/Tag') { |element|
-			results_tags << element.text
-	}
-	doc.elements.each('ResultSet/Result/Frequency') { |element|
-			results_freqs << element.text
-	}
-	count = 0
-	results_nos.length.times {
-		# TODO: return keys that have values
-		results << {
-			'Title' => results_titles[count],
-			'Summary' => results_summaries[count],
-			'Url' => results_urls[count],
-			'ClickUrl' => results_clickurls[count],
-			'ModificationDate' => results_moddates[count],
-			'MimeType' => results_mimetypes[count],
-			'User' => results_users[count],
-			'Note' => results_notes[count],
-			'Date' => results_dates[count],
-			'Tag' => results_tags[count],
-			'Frequency' => results_freqs[count],
-		}
-		count = count + 1
-	}
-	return results
+			doc.elements.each('ResultSet/Result') { |element|
+					results_nos << ''
+			}
+			doc.elements.each('ResultSet/Result/Title') { |element|
+					results_titles << element.text
+			}
+			doc.elements.each('ResultSet/Result/Summary') { |element|
+					results_summaries << element.text
+			}
+			doc.elements.each('ResultSet/Result/Url') { |element|
+					results_urls << element.text
+			}
+			doc.elements.each('ResultSet/Result/ClickUrl') { |element|
+					results_clickurls << element.text
+			}
+			doc.elements.each('ResultSet/Result/ModificationDate') { |element|
+					results_moddates << element.text
+			}
+			doc.elements.each('ResultSet/Result/MimeType') { |element|
+					results_mimetypes << element.text
+			}
+			doc.elements.each('ResultSet/Result/User') { |element|
+					results_users << element.text
+			}
+			doc.elements.each('ResultSet/Result/Note') { |element|
+					results_notes << element.text
+			}
+			doc.elements.each('ResultSet/Result/Date') { |element|
+					results_dates << element.text
+			}
+			doc.elements.each('ResultSet/Result/Tag') { |element|
+					results_tags << element.text
+			}
+			doc.elements.each('ResultSet/Result/Frequency') { |element|
+					results_freqs << element.text
+			}
+			count = 0
+			results_nos.length.times {
+				# TODO: return keys that have values
+				results << {
+					'Title' => results_titles[count],
+					'Summary' => results_summaries[count],
+					'Url' => results_urls[count],
+					'ClickUrl' => results_clickurls[count],
+					'ModificationDate' => results_moddates[count],
+					'MimeType' => results_mimetypes[count],
+					'User' => results_users[count],
+					'Note' => results_notes[count],
+					'Date' => results_dates[count],
+					'Tag' => results_tags[count],
+					'Frequency' => results_freqs[count],
+				}
+				count = count + 1
+			}
+			return results
     end
 
     # basic parameters

@@ -78,6 +78,7 @@ class GoogleCachedSearchEngine < SearchEngine
 	def search(num_of_pages)
 		super(num_of_pages)
 		for query in @searchString
+				# provare thread 
 				$logger.info("GoogleSearchEngine") {"query -> #{query}"}
 				q = GScraper::Search.query(:query => query)
 				for i in 0...NUM_OF_PAGES
@@ -100,7 +101,7 @@ class YahooSearchEngine < SearchEngine
 
 	def initialize(obj_ref, wlist, bsize)
 		super(obj_ref, wlist, bsize)
-    @language='it'          # only italian pages
+    @language='en'          # only italian pages
     @app_id = 'fQ19NwLV34FPwYY.h2I1Hc8VcSfCGGCiUPY8kFfi2m8cjbKeAx3YxV0779bydcfE2Q--'   # this works, but plase use your id
   end
 

@@ -25,10 +25,12 @@ class WebDocument
 	attr_reader :content
 	
 	
-	@@bsize = 5 															# size of word blocks used to build the hash table
-	@@table_size = 209503
+	@@bsize = 10 															# size of word blocks used to build the hash table
+	#@@table_size = 209503
+	@@table_size = 1200583
 	@@count = 0
 	@@expTable = []
+	@@collision = 0
 	@last_hashvalue = 0
 	@last_fbvalue = 0
 	@doc_name = ""
@@ -54,6 +56,7 @@ class WebDocument
 		$logger.info("Document") {"reading #{url}"}
 		if ((@text = Readers::get_text(url)) == "")
 			puts "Empty file #{url}"
+			return -1
 		end #if
 		@content = parse(@text)
 		$logger.info("Document") {"#{url} read | @content.size:#{@content.size}"}
@@ -250,21 +253,21 @@ class MasterDocument < WebDocument
 	
 	# searching for overlaps on documents found on the internet
 	def search_common_region()
-		@searchMutex = Mutex.new
-		@addOverlapMutex = Mutex.new
-		threads = []
+		@searchMutex = Mutex.new																			# mutex on @overlaps variable
+		@addOverlapMutex = Mutex.new																	# mutex on Overlap#add method
+		threads = []																									# thread list
 		for doc in @resultList										# Searchs if there are common region fo revery Document object created
-				threads << Thread.new do
-					puts "==== Searching overlaps on #{doc.doc_name}===="
+				#threads << Thread.new do
+					puts "==== Searching overlaps on #{doc.doc_name} ===="
 					overlap = self.search_overlaps(doc)											# if ovelap = nil no overlaps were found
 					if overlap != nil
-						@searchMutex.lock
+						#@searchMutex.lock
 							@overlaps << overlap
-						@searchMutex.unlock
+						#@searchMutex.unlock
 					end #if
-				end # do threads
+				#end # do threads
 			end #for
-			threads.each {|t| t.join}																		# wait the execution of every thread created
+			#threads.each {|t| t.join}																		# wait the execution of every thread created
 		$logger.debug("MasterDocument#fetch_url") {"@Overlaps size: #{@overlaps.size}"}
 	end
 	
@@ -272,24 +275,23 @@ class MasterDocument < WebDocument
 	def display_overlaps()
 		i = 1
 		j = 1
-		print "\n==== Diplay overlaps (display_overlaps)====\n"
+		print "\n==== Diplay overlaps (display_overlaps) ====\n"
 		if @overlaps.size > 0
 			for item in @overlaps
 				if item != nil
 				print "\n*********************\n"
-				print "MasterDocument ID -> #{item.master_doc.object_id}\n"
 				print "MasterDocument name -> #{item.master_doc.doc_name}\n"
 				print "CopyDoc ID -> #{item.copy_doc.doc_name}\n"
-				print "CopyDoc ID -> #{item.copy_doc.object_id}\n\n"
 				puts "Total overlaps: #{item.num_overlaps}"
 				puts "Total common words: #{item.tot_words}"
+				temp = item.copy_doc.doc_name.scan(/\w+/)
+				temp.delete_at(0) if temp.include?("http")
+				filename = "tmp/debug/"+temp.join("_")+".txt"
 				item.overlaps.each do |x| 
 					puts "Overlap #{j} size -> #{x[0]} indexes: Master(#{x[1][0]}, #{x[1][1]}) Copy(#{x[2][0]}, #{x[2][1]})"
 					# save a file for test the overlaps (DEBUG CODE)
-					filename = "tmp/debug/"+item.master_doc.doc_name+"-"+j.to_s
-					open(filename,"w").write("==== master: "+self.get_words(x[1][0], x[0]).to_s+"\n==== copy -> #{item.copy_doc.doc_name}:\n "+item.copy_doc.get_words(x[2][0], x[0]).to_s)
+					open(filename,"a").write("\nSTART ====\nmaster:\n"+self.get_words(x[1][0], x[0]).to_s+"\n====\ncopy -> #{item.copy_doc.doc_name}:\n"+item.copy_doc.get_words(x[2][0], x[0]).to_s+"\n==== END\n")
 					# end DEBUG CODE
-					j += 1
 					end
 				i += 1
 				j = 0
@@ -300,6 +302,7 @@ class MasterDocument < WebDocument
 			print"=== No overlaps found ===\n\n"
 		end #if
 		print "\n"
+		printf "Collision detected: #{@@collision}"
 	end #display
 
 	private # private method
@@ -314,6 +317,8 @@ class MasterDocument < WebDocument
 			if (wlist_master == wlist)
 				extend_block(doc, wlist_master,index_first, index_second)
 				return true
+			else
+				@@collision += 1
 			end #if
 			return false 																				# if the found block it's not the same return false (collision)
 	end
@@ -328,9 +333,10 @@ class MasterDocument < WebDocument
 		extension_j = j-1
 		# left extension
 		while (@content[extension_i][0] == doc.content[extension_j][0])
+			#puts "left extension"
 			extension_i -= 1
 			extension_j -= 1
-			break if (extension_i < 0) || (extension_j < 0)
+			break if (extension_i <= 0) || (extension_j <= 0)
 		end  #while
 		@extended_index["start_master"] = extension_i+1
 		@extended_index["start_copy"] = extension_j+1
@@ -341,6 +347,7 @@ class MasterDocument < WebDocument
 		# Da controllare se va oltre il numero massimo già in questo punto
 		#
 		while (@content[extension_i][0] == doc.content[extension_j][0])
+			#puts "right extension"
 			extension_i += 1
 			extension_j += 1
 			break if (extension_i > @content.size-1) || (extension_j > doc.content.size-1)
@@ -368,31 +375,23 @@ class MasterDocument < WebDocument
 		puts "==== Create Document objects from url ===="
 		while ((url = urlList.get_next) != nil)
 			threads << Thread.new do
-				if search_engine.kind_of?(GoogleCachedSearchEngine)			# search on cached pages
-					begin
-						document = WebDocument.new(url)
-						@mutex.lock																					# controls access to a shared source
+				# togliere diversificazione 
+				begin	
+					document = WebDocument.new(url)
+					if document != -1
+						@mutex.lock																				# controls access to a shared source
 							@resultList << document
 						@mutex.unlock
 						puts "==== Document Object from #{document.doc_name} created ===="
-					rescue StandardError => msg
-						$error_logger.error("MasterDocument#fetch_url(Document.new)") {"Document creation failed -> #{msg} #{url}"}
-							next 																							# jump to next iteration
-					end #exception
-				elsif search_engine.kind_of?(GoogleSearchEngine) || search_engine.kind_of?(YahooSearchEngine)		# search on normal pages
-						begin	
-							document = WebDocument.new(url)
-							@mutex.lock																				# controls access to a shared source
-								@resultList << document
-							@mutex.unlock
-							puts "==== Document Object from #{document.doc_name} created ===="
-						rescue StandardError => msg
-							$error_logger.error("MasterDocument#fetch_url(Document.new)") {"Document creation failed -> #{msg} #{url}"}
-							next 																							# jump to next iteration
-						end #exception
-						# write the error on a log file and continue the execution of program
-						#$error_logger.debug("MasterDocument#fetch_url") {"#{url} -> extension: #{extension}"} 	
-				end #if
+					else
+						puts "Empty document not added" 
+					end #if
+				rescue StandardError => msg
+					$error_logger.error("MasterDocument#fetch_url(Document.new)") {"Document creation failed -> #{msg} #{url}"}
+					next 																							# jump to next iteration
+				end #exception
+				# write the error on a log file and continue the execution of program
+				#$error_logger.debug("MasterDocument#fetch_url") {"#{url} -> extension: #{extension}"} 	
 			end # do thread
 		end #while
 		threads.each {|t| t.join}																		# wait the execution of every thread created
